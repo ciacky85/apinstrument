@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "email": "cliente@apinstrument.com",
+    "passwordHash": "ff37d8d518f04f36b6b9c8b3980e939771071fc546fa722901a2bf650181b2c0",
+    "firstName": "Marco",
+    "lastName": "Bianchi",
+    "phone": "+39 06 9876543",
+    "address": "Corso Italia 15",
+    "city": "Roma",
+    "postcode": "00100",
+    "country": "IT",
+    "fiscalCode": "BNCMRC85T10H501Z",
+    "dateCreated": "2026-10-03T09:42:43.004Z"
+  },
+  {
+    "id": 2,
+    "email": "giulia.verdi_1791020966445@test.it",
+    "passwordHash": "1147dfcc910233958b6c9ef6877023bbd76580dfb69cd6da5fbfc9fa2e30757a",
+    "firstName": "Giulia",
+    "lastName": "Verdi",
+    "phone": "+39 347 9876543",
+    "address": "Via Dante 15",
+    "city": "Firenze",
+    "postcode": "50123",
+    "country": "IT",
+    "fiscalCode": "VRDGLI90A41H501Z",
+    "dateCreated": "2026-10-03T09:49:26.493Z"
+  }
+]

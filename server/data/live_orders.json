@@ -1,0 +1,77 @@
+[
+  {
+    "orderId": "AP-10001",
+    "orderNumber": 10001,
+    "userId": 1,
+    "dateCreated": "2026-10-03T09:43:53.482Z",
+    "status": "confermato-in-lavorazione",
+    "paymentMethod": "carta",
+    "customer": {
+      "firstName": "Marco",
+      "lastName": "Bianchi",
+      "email": "cliente@apinstrument.com",
+      "phone": "+39 06 9876543",
+      "address": "Corso Italia 15",
+      "city": "Roma",
+      "postcode": "00100",
+      "country": "IT",
+      "fiscalCode": "",
+      "notes": ""
+    },
+    "items": [
+      {
+        "id": 3613,
+        "title": "SERIE ST MARIMBA - ST1 SOFT",
+        "price": 31.5,
+        "qty": 2
+      }
+    ],
+    "shipping": {
+      "cost": 9,
+      "zone": "Italia Standard"
+    },
+    "totals": {
+      "subtotal": 63,
+      "shipping": 9,
+      "total": 72
+    }
+  },
+  {
+    "orderId": "AP-10002",
+    "orderNumber": 10002,
+    "userId": 2,
+    "createdAt": "2026-10-03T09:49:26.511Z",
+    "dateCreated": "2026-10-03T09:49:26.512Z",
+    "status": "In Lavorazione",
+    "paymentMethod": "carta",
+    "customer": {
+      "firstName": "Giulia",
+      "lastName": "Verdi",
+      "email": "giulia.verdi_1791020966445@test.it",
+      "phone": "+39 347 9876543",
+      "address": "Via Dante 15",
+      "city": "Firenze",
+      "postcode": "50123",
+      "country": "IT",
+      "fiscalCode": "VRDGLI90A41H501Z",
+      "notes": "Consegnare al portiere"
+    },
+    "items": [
+      {
+        "id": 3613,
+        "title": "SERIE ST MARIMBA - ST1 SOFT",
+        "sku": "ST1",
+        "price": 31.5,
+        "qty": 2
+      }
+    ],
+    "subtotal": 63,
+    "shipping": 9,
+    "total": 72,
+    "totals": {
+      "subtotal": 63,
+      "shipping": 9,
+      "total": 72
+    }
+  }
+]

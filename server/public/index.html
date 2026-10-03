@@ -27,7 +27,7 @@
     </div>
   </div>
 
-  <!-- Header with Original AP Instrument Logo -->
+  <!-- Header with Original AP Instrument Logo & User Auth -->
   <header class="mg-header">
     <div class="mg-header-inner">
       <a href="/" class="mg-logo-link" title="AP Instrument Home">
@@ -49,6 +49,12 @@
 
       <!-- Header Actions -->
       <div class="mg-header-actions">
+        <!-- User Account Login / Profile Button -->
+        <button class="mg-user-btn" id="header-user-btn" onclick="handleUserBtnClick()" title="Area Personale / Accedi">
+          <i class="fa-solid fa-circle-user"></i>
+          <span id="header-user-label">Accedi</span>
+        </button>
+
         <!-- Language Switcher -->
         <div class="mg-lang-switch">
           <button class="mg-lang-btn active" id="btn-it" onclick="setLanguage('it')">IT</button>
@@ -71,10 +77,8 @@
 
   <!-- =========================================================================
        HERO SPOTLIGHT: SATOMI TAKASHIMA SIGNATURE SERIES
-       Grafica avvincente, moderna, interattiva (Preview modelli ST1-ST5 + Video)
        ========================================================================= -->
   <section class="satomi-hero-section" id="satomi-hero">
-    <!-- Atmospheric Ambient Background Glow -->
     <div class="satomi-hero-bg" style="background-image: linear-gradient(90deg, rgba(14,13,11,0.95) 0%, rgba(18,17,14,0.85) 50%, rgba(14,13,11,0.7) 100%), url('/uploads/Satomi6.jpg');"></div>
     
     <div class="satomi-hero-container">
@@ -403,9 +407,7 @@
           <span id="products-count-badge" class="mg-count-label">127 modelli disponibili</span>
         </div>
 
-        <div class="mg-active-filters" id="active-filter-chips">
-          <!-- Dynamically populated if subfilters active -->
-        </div>
+        <div class="mg-active-filters" id="active-filter-chips"></div>
       </div>
 
       <!-- Products Grid -->
@@ -467,18 +469,15 @@
         
         <div id="modal-desc" class="modal-description-box"></div>
 
-        <!-- Dynamic Specs Table -->
         <h4 class="modal-specs-title">Specifiche Costruttive & Materiali</h4>
         <div class="modal-specs-grid" id="modal-specs"></div>
 
-        <!-- Dedicated Video Button in Modal if product has demo -->
         <div id="modal-video-box" style="display: none; margin-top: 1rem;">
           <button class="modal-video-btn" id="modal-video-btn" onclick="openProductVideo()">
             <i class="fa-solid fa-circle-play"></i> Guarda la Video Dimostrazione
           </button>
         </div>
 
-        <!-- Add to Cart in Modal -->
         <div class="modal-purchase-row">
           <div class="modal-qty-control">
             <button onclick="changeModalQty(-1)">-</button>
@@ -506,6 +505,477 @@
       <div class="video-responsive-wrap">
         <iframe id="video-modal-iframe" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       USER AUTH MODAL (LOGIN & REGISTRAZIONE)
+       ========================================================================= -->
+  <div class="mg-modal-overlay" id="auth-modal" onclick="closeModalOnBg(event)">
+    <div class="auth-modal-dialog">
+      <button class="mg-modal-close-btn" onclick="closeAuthModal()" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tab-auth-login" onclick="switchAuthTab('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> Accedi
+        </button>
+        <button class="auth-tab-btn" id="tab-auth-register" onclick="switchAuthTab('register')">
+          <i class="fa-solid fa-user-plus"></i> Crea un Account
+        </button>
+      </div>
+
+      <!-- Login Form View -->
+      <div class="auth-view" id="auth-view-login">
+        <div class="auth-intro">
+          <h3>Bentornato su AP Instrument</h3>
+          <p>Accedi per gestire i tuoi indirizzi di spedizione e monitorare lo storico ordini.</p>
+        </div>
+
+        <form id="form-login" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" class="auth-input" placeholder="esempio@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" class="auth-input" placeholder="Inserisci password" required>
+          </div>
+
+          <div id="login-error-msg" class="auth-error-box" style="display: none;"></div>
+
+          <button type="submit" class="btn-auth-submit" id="btn-login-submit">
+            <i class="fa-solid fa-lock"></i> Accedi al Tuo Profilo
+          </button>
+        </form>
+
+        <!-- Fast Demo Account Helper -->
+        <div class="auth-demo-box">
+          <span>Vuoi testare subito il sistema?</span>
+          <button type="button" class="btn-demo-login" onclick="fillDemoCredentials()">
+            <i class="fa-solid fa-bolt"></i> Accedi con Account Demo (Marco Bianchi)
+          </button>
+        </div>
+      </div>
+
+      <!-- Register Form View -->
+      <div class="auth-view" id="auth-view-register" style="display: none;">
+        <div class="auth-intro">
+          <h3>Registrati come Cliente</h3>
+          <p>Salva i tuoi recapiti per checkout istantanei e consulta lo storico di tutti i tuoi ordini.</p>
+        </div>
+
+        <form id="form-register" onsubmit="handleRegisterSubmit(event)">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="reg-firstname">Nome *</label>
+              <input type="text" id="reg-firstname" class="auth-input" placeholder="Nome" required>
+            </div>
+            <div class="form-group">
+              <label for="reg-lastname">Cognome *</label>
+              <input type="text" id="reg-lastname" class="auth-input" placeholder="Cognome" required>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="reg-email">Email *</label>
+              <input type="email" id="reg-email" class="auth-input" placeholder="email@esempio.com" required>
+            </div>
+            <div class="form-group">
+              <label for="reg-password">Password *</label>
+              <input type="password" id="reg-password" class="auth-input" placeholder="Almeno 6 caratteri" minlength="6" required>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="reg-phone">Telefono per il corriere</label>
+              <input type="tel" id="reg-phone" class="auth-input" placeholder="+39 340 1234567">
+            </div>
+            <div class="form-group">
+              <label for="reg-fiscalcode">Codice Fiscale / P.IVA</label>
+              <input type="text" id="reg-fiscalcode" class="auth-input" placeholder="Opzionale per fattura">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-address">Indirizzo di Spedizione (Via e N. civico)</label>
+            <input type="text" id="reg-address" class="auth-input" placeholder="es. Via Roma 42">
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="reg-city">Città</label>
+              <input type="text" id="reg-city" class="auth-input" placeholder="Città">
+            </div>
+            <div class="form-group">
+              <label for="reg-postcode">CAP</label>
+              <input type="text" id="reg-postcode" class="auth-input" placeholder="CAP">
+            </div>
+            <div class="form-group">
+              <label for="reg-country">Nazione</label>
+              <select id="reg-country" class="auth-input">
+                <option value="IT" selected>Italia</option>
+                <option value="DE">Germania</option>
+                <option value="FR">Francia</option>
+                <option value="ES">Spagna</option>
+                <option value="AT">Austria</option>
+                <option value="CH">Svizzera</option>
+                <option value="JP">Giappone</option>
+                <option value="US">Stati Uniti</option>
+                <option value="OTHER">Altra Nazione</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="register-error-msg" class="auth-error-box" style="display: none;"></div>
+
+          <button type="submit" class="btn-auth-submit" id="btn-register-submit">
+            <i class="fa-solid fa-user-check"></i> Completa Registrazione
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       USER ACCOUNT DASHBOARD MODAL (RECAPITI & STORICO ORDINI)
+       ========================================================================= -->
+  <div class="mg-modal-overlay" id="account-modal" onclick="closeModalOnBg(event)">
+    <div class="account-modal-dialog">
+      <button class="mg-modal-close-btn" onclick="closeAccountModal()" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="account-header-bar">
+        <div class="account-user-meta">
+          <i class="fa-solid fa-circle-user account-avatar"></i>
+          <div>
+            <h3 id="account-display-name">Marco Bianchi</h3>
+            <span id="account-display-email" class="account-email-sub">cliente@apinstrument.com</span>
+          </div>
+        </div>
+        <button class="btn-account-logout" onclick="handleLogout()" title="Esci dall'account">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Esci
+        </button>
+      </div>
+
+      <!-- Account Dashboard Tabs -->
+      <div class="account-nav-tabs">
+        <button class="acc-tab-btn active" id="tab-acc-profile" onclick="switchAccountTab('profile')">
+          <i class="fa-solid fa-id-card"></i> I Miei Recapiti & Indirizzo
+        </button>
+        <button class="acc-tab-btn" id="tab-acc-orders" onclick="switchAccountTab('orders')">
+          <i class="fa-solid fa-box-open"></i> I Miei Ordini <span class="orders-count-badge" id="account-orders-badge">0</span>
+        </button>
+      </div>
+
+      <!-- Tab Content 1: Recapiti & Profile Form -->
+      <div class="account-tab-content" id="acc-content-profile">
+        <form id="form-update-profile" onsubmit="handleProfileUpdateSubmit(event)">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="acc-firstname">Nome</label>
+              <input type="text" id="acc-firstname" class="auth-input" required>
+            </div>
+            <div class="form-group">
+              <label for="acc-lastname">Cognome</label>
+              <input type="text" id="acc-lastname" class="auth-input" required>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="acc-phone">Telefono per il corriere</label>
+              <input type="tel" id="acc-phone" class="auth-input" placeholder="+39 340 1234567">
+            </div>
+            <div class="form-group">
+              <label for="acc-fiscalcode">Codice Fiscale / P.IVA</label>
+              <input type="text" id="acc-fiscalcode" class="auth-input">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="acc-address">Indirizzo di Spedizione (Via e N. Civico)</label>
+            <input type="text" id="acc-address" class="auth-input" placeholder="es. Via Roma 42">
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="acc-city">Città</label>
+              <input type="text" id="acc-city" class="auth-input">
+            </div>
+            <div class="form-group">
+              <label for="acc-postcode">CAP</label>
+              <input type="text" id="acc-postcode" class="auth-input">
+            </div>
+            <div class="form-group">
+              <label for="acc-country">Nazione</label>
+              <select id="acc-country" class="auth-input">
+                <option value="IT">Italia</option>
+                <option value="DE">Germania</option>
+                <option value="FR">Francia</option>
+                <option value="ES">Spagna</option>
+                <option value="AT">Austria</option>
+                <option value="CH">Svizzera</option>
+                <option value="JP">Giappone</option>
+                <option value="US">Stati Uniti</option>
+                <option value="OTHER">Altra Nazione</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="acc-new-password">Nuova Password (lascia vuoto per non modificare)</label>
+            <input type="password" id="acc-new-password" class="auth-input" placeholder="Nuova password">
+          </div>
+
+          <div id="profile-msg-box" class="auth-success-box" style="display: none;"></div>
+
+          <button type="submit" class="btn-auth-submit" id="btn-save-profile">
+            <i class="fa-solid fa-floppy-disk"></i> Salva Modifiche Profilo
+          </button>
+        </form>
+      </div>
+
+      <!-- Tab Content 2: Storico Ordini -->
+      <div class="account-tab-content" id="acc-content-orders" style="display: none;">
+        <div id="account-orders-list" class="orders-list-wrapper">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       COMPLETE CHECKOUT & PAYMENT MODAL
+       ========================================================================= -->
+  <div class="mg-modal-overlay" id="checkout-modal" onclick="closeModalOnBg(event)">
+    <div class="checkout-modal-dialog">
+      <button class="mg-modal-close-btn" onclick="closeCheckoutModal()" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="checkout-header">
+        <i class="fa-solid fa-lock gold-icon"></i>
+        <div>
+          <h2>Cassa Sicura & Spedizione</h2>
+          <p>Completa i dettagli per la consegna delle tue bacchette artigianali</p>
+        </div>
+      </div>
+
+      <!-- Logged-in auto-fill notice -->
+      <div id="checkout-user-banner" class="checkout-user-banner" style="display: none;">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>I tuoi dati e indirizzo di spedizione sono stati pre-caricati dal tuo account!</span>
+      </div>
+
+      <div class="checkout-grid">
+        
+        <!-- Left Column: Shipping & Billing Form -->
+        <div class="checkout-col-shipping">
+          <h3 class="checkout-section-title"><i class="fa-solid fa-truck-fast"></i> 1. Dati di Spedizione & Contatto</h3>
+          
+          <form id="checkout-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="chk-firstname">Nome *</label>
+                <input type="text" id="chk-firstname" class="auth-input" required>
+              </div>
+              <div class="form-group">
+                <label for="chk-lastname">Cognome *</label>
+                <input type="text" id="chk-lastname" class="auth-input" required>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="chk-email">Email di Conferma Ordine *</label>
+                <input type="email" id="chk-email" class="auth-input" required>
+              </div>
+              <div class="form-group">
+                <label for="chk-phone">Telefono per il Corriere *</label>
+                <input type="tel" id="chk-phone" class="auth-input" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="chk-address">Indirizzo di Consegna (Via/Piazza e N. Civico) *</label>
+              <input type="text" id="chk-address" class="auth-input" placeholder="es. Via dei Liutai 12" required>
+            </div>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label for="chk-city">Città *</label>
+                <input type="text" id="chk-city" class="auth-input" required>
+              </div>
+              <div class="form-group">
+                <label for="chk-postcode">CAP *</label>
+                <input type="text" id="chk-postcode" class="auth-input" required>
+              </div>
+              <div class="form-group">
+                <label for="chk-country">Nazione *</label>
+                <select id="chk-country" class="auth-input" onchange="handleCheckoutCountryChange()">
+                  <option value="IT" selected>Italia (Corriere Espresso €9.00)</option>
+                  <option value="DE">Germania (UE €16.00)</option>
+                  <option value="FR">Francia (UE €16.00)</option>
+                  <option value="ES">Spagna (UE €16.00)</option>
+                  <option value="AT">Austria (UE €16.00)</option>
+                  <option value="CH">Svizzera (Extra-UE €25.00)</option>
+                  <option value="JP">Giappone (Worldwide €25.00)</option>
+                  <option value="US">Stati Uniti (Worldwide €25.00)</option>
+                  <option value="OTHER">Altra Nazione (€25.00)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="chk-fiscalcode">Codice Fiscale o P.IVA (opzionale per fattura fiscale)</label>
+              <input type="text" id="chk-fiscalcode" class="auth-input">
+            </div>
+
+            <div class="form-group">
+              <label for="chk-notes">Note per la bottega o per il corriere</label>
+              <textarea id="chk-notes" class="auth-input" rows="2" placeholder="Istruzioni di consegna, citofono, personalizzazioni..."></textarea>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: Order Summary & Payment Gateway -->
+        <div class="checkout-col-payment">
+          
+          <h3 class="checkout-section-title"><i class="fa-solid fa-receipt"></i> 2. Riepilogo Ordine</h3>
+          <div class="checkout-summary-box" id="checkout-summary-items">
+            <!-- Dynamically injected items -->
+          </div>
+
+          <div class="checkout-totals-box">
+            <div class="checkout-totals-row">
+              <span>Subtotale bacchette:</span>
+              <strong id="chk-subtotal">€ 0.00</strong>
+            </div>
+            <div class="checkout-totals-row">
+              <span>Spedizione Espressa:</span>
+              <strong id="chk-shipping">€ 9.00</strong>
+            </div>
+            <div class="checkout-totals-row final">
+              <span>TOTALE DA PAGARE:</span>
+              <strong id="chk-total" class="chk-grand-total">€ 0.00</strong>
+            </div>
+          </div>
+
+          <h3 class="checkout-section-title" style="margin-top: 1.5rem;"><i class="fa-solid fa-credit-card"></i> 3. Metodo di Pagamento</h3>
+          
+          <!-- Payment Selector Tabs -->
+          <div class="payment-tabs">
+            <button class="payment-tab active" id="paytab-card" onclick="switchPaymentMethod('carta')">
+              <i class="fa-solid fa-credit-card"></i> Carta
+            </button>
+            <button class="payment-tab" id="paytab-paypal" onclick="switchPaymentMethod('paypal')">
+              <i class="fa-brands fa-paypal"></i> PayPal
+            </button>
+            <button class="payment-tab" id="paytab-bacs" onclick="switchPaymentMethod('bacs')">
+              <i class="fa-solid fa-building-columns"></i> Bonifico
+            </button>
+          </div>
+
+          <!-- Card Form View -->
+          <div class="payment-view" id="payview-card">
+            <div class="form-group">
+              <label for="card-num">Numero Carta di Credito / Debito</label>
+              <div class="card-input-wrap">
+                <input type="text" id="card-num" class="auth-input" placeholder="4532 •••• •••• 8910" maxlength="19">
+                <i class="fa-brands fa-cc-visa card-icon-preview"></i>
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="card-exp">Scadenza (MM/AA)</label>
+                <input type="text" id="card-exp" class="auth-input" placeholder="12/28" maxlength="5">
+              </div>
+              <div class="form-group">
+                <label for="card-cvv">CVV</label>
+                <input type="password" id="card-cvv" class="auth-input" placeholder="123" maxlength="4">
+              </div>
+            </div>
+            <button type="button" class="btn-pay-action btn-pay-card" onclick="submitCheckoutOrder('carta')">
+              <i class="fa-solid fa-lock"></i> Conferma & Paga con Carta (<span class="pay-btn-amount">€ 0.00</span>)
+            </button>
+          </div>
+
+          <!-- PayPal Form View -->
+          <div class="payment-view" id="payview-paypal" style="display: none;">
+            <p style="font-size: 0.88rem; color: var(--mg-text-muted); margin-bottom: 1rem;">
+              Sarai reindirizzato al server sicuro PayPal per completare la transazione o autorizzare il pagamento con 1 click.
+            </p>
+            <button type="button" class="btn-pay-action btn-pay-paypal" onclick="submitCheckoutOrder('paypal')">
+              <i class="fa-brands fa-paypal"></i> Paga con PayPal (<span class="pay-btn-amount">€ 0.00</span>)
+            </button>
+          </div>
+
+          <!-- BACS Bank Transfer Form View -->
+          <div class="payment-view" id="payview-bacs" style="display: none;">
+            <div class="bacs-info-box">
+              <strong style="color: var(--mg-text-main); display: block; margin-bottom: 4px;">Coordinate Bancarie AP Instrument:</strong>
+              <div style="font-size: 0.85rem; color: #555; line-height: 1.6;">
+                Banca: <strong>Banca Intesa Sanpaolo</strong><br>
+                Intestatario: <strong>AP Instrument di Percussioni</strong><br>
+                IBAN: <strong>IT60 X054 2811 1010 0000 0123 456</strong><br>
+                Causale: <em>Verrà fornita con il numero d'ordine</em>
+              </div>
+            </div>
+            <button type="button" class="btn-pay-action btn-pay-bacs" onclick="submitCheckoutOrder('bacs')">
+              <i class="fa-solid fa-check"></i> Conferma Ordine con Bonifico Anticipato
+            </button>
+          </div>
+
+          <div id="checkout-error-box" class="auth-error-box" style="display: none; margin-top: 1rem;"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       ORDER SUCCESS CONFIRMATION MODAL
+       ========================================================================= -->
+  <div class="mg-modal-overlay" id="order-success-modal">
+    <div class="success-modal-dialog">
+      
+      <div class="success-icon-wrap">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+
+      <h2 class="success-title">Grazie per il tuo Ordine!</h2>
+      <p class="success-subtitle">Il tuo ordine è stato registrato ed è ora in lavorazione presso la bottega AP Instrument.</p>
+
+      <div class="success-order-box">
+        <div class="success-row">
+          <span>Numero d'Ordine:</span>
+          <strong id="success-order-id" style="color: var(--mg-accent-gold); font-size: 1.2rem;">#AP-10001</strong>
+        </div>
+        <div class="success-row">
+          <span>Metodo di Pagamento:</span>
+          <span id="success-payment-method">Carta di Credito (Autorizzato)</span>
+        </div>
+        <div class="success-row">
+          <span>Indirizzo di Spedizione:</span>
+          <span id="success-shipping-address">Via Roma 42, Milano</span>
+        </div>
+        <div class="success-row">
+          <span>Totale Ordine:</span>
+          <strong id="success-total" style="font-size: 1.15rem;">€ 0.00</strong>
+        </div>
+      </div>
+
+      <div class="success-items-list" id="success-items-list"></div>
+
+      <div class="success-actions">
+        <button class="btn-success-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Stampa Ricevuta</button>
+        <button class="btn-success-close" onclick="closeOrderSuccessModal()"><i class="fa-solid fa-shop"></i> Continua lo Shopping</button>
+      </div>
+
     </div>
   </div>
 
@@ -555,7 +1025,7 @@
   </div>
 
   <!-- =========================================================================
-       SLIDE-OUT CART DRAWER & CHECKOUT
+       SLIDE-OUT CART DRAWER
        ========================================================================= -->
   <div class="mg-drawer-backdrop" id="cart-overlay" onclick="toggleCart()"></div>
   <div class="mg-drawer-panel" id="cart-drawer">
@@ -569,9 +1039,7 @@
     </div>
 
     <!-- Items List -->
-    <div class="mg-drawer-scroll" id="cart-items">
-      <!-- Injected dynamically -->
-    </div>
+    <div class="mg-drawer-scroll" id="cart-items"></div>
 
     <!-- Footer Checkout Info -->
     <div class="mg-drawer-bottom" id="cart-footer" style="display: none;">
@@ -591,13 +1059,10 @@
         <strong id="cart-total" class="cart-grand-total">€ 0.00</strong>
       </div>
 
-      <!-- Checkout Actions -->
+      <!-- Checkout Actions: Leads directly to real payment & shipping page -->
       <div class="cart-checkout-actions">
-        <button class="btn-checkout-paypal" onclick="initiateCheckout('paypal')">
-          <i class="fa-brands fa-paypal"></i> Paga con PayPal
-        </button>
-        <button class="btn-checkout-card" onclick="initiateCheckout('stripe')">
-          <i class="fa-solid fa-credit-card"></i> Paga con Carta di Credito
+        <button class="btn-checkout-primary" onclick="openCheckoutModal()">
+          <i class="fa-solid fa-lock"></i> Procedi all'Acquisto & Spedizione
         </button>
       </div>
 
@@ -610,12 +1075,66 @@
   </div>
 
   <!-- =========================================================================
-       TOAST NOTIFICATIONS (Animated Popup on Add to Cart)
+       MANDATORY GDPR COOKIE CONSENT BANNER
        ========================================================================= -->
+  <div class="cookie-consent-banner" id="cookie-banner" style="display: none;">
+    <div class="cookie-banner-inner">
+      <div class="cookie-icon-col">
+        <i class="fa-solid fa-cookie-bite"></i>
+      </div>
+      <div class="cookie-text-col">
+        <h4>Informativa sull'Uso dei Cookie</h4>
+        <p>
+          Questo sito utilizza cookie tecnici necessari per il corretto funzionamento del carrello, la memorizzazione delle preferenze e la gestione sicura degli ordini. Con il tuo consenso utilizziamo anche cookie analitici per migliorare il catalogo. Consulta la nostra <a href="javascript:void(0)" onclick="openCookieSettings()" style="text-decoration: underline; color: var(--mg-accent-gold);">Cookie Policy</a>.
+        </p>
+      </div>
+      <div class="cookie-actions-col">
+        <button class="btn-cookie-accept" onclick="acceptAllCookies()">Accetta Tutti</button>
+        <button class="btn-cookie-necessary" onclick="acceptNecessaryCookies()">Solo Necessari</button>
+        <button class="btn-cookie-customize" onclick="openCookieSettings()">Personalizza</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cookie Customization Modal -->
+  <div class="mg-modal-overlay" id="cookie-settings-modal" onclick="closeModalOnBg(event)">
+    <div class="auth-modal-dialog" style="max-width: 550px;">
+      <button class="mg-modal-close-btn" onclick="closeCookieSettings()" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
+      <h3 style="font-family: var(--mg-font-heading); font-size: 1.4rem; margin-bottom: 1rem; color: var(--mg-text-main);">
+        <i class="fa-solid fa-sliders gold-icon"></i> Preferenze Cookie
+      </h3>
+      
+      <div class="cookie-pref-item">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Cookie Tecnici & di Sessione</strong>
+          <span style="font-size: 0.75rem; color: #55c777; font-weight: 700;">SEMPRE ATTIVI (Obbligatori)</span>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--mg-text-muted);">
+          Indispensabili per salvare il carrello, completare gli ordini e gestire la sessione di login protetta.
+        </p>
+      </div>
+
+      <div class="cookie-pref-item" style="margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong>Cookie Analitici & Prestazioni</strong>
+          <input type="checkbox" id="chk-cookie-analytics" checked style="width: 18px; height: 18px; cursor: pointer;">
+        </div>
+        <p style="font-size: 0.82rem; color: var(--mg-text-muted);">
+          Ci aiutano ad analizzare in forma aggregata e anonima le visite alle categorie e ai modelli più apprezzati.
+        </p>
+      </div>
+
+      <button class="btn-auth-submit" style="margin-top: 1.5rem;" onclick="saveCustomCookiePreferences()">
+        Salva le Mie Preferenze
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
   <div class="mg-toast-container" id="toast-container"></div>
 
   <!-- =========================================================================
-       FOOTER (MG Mallets Clean Aesthetic)
+       FOOTER
        ========================================================================= -->
   <footer class="mg-footer">
     <div class="mg-footer-inner">
@@ -655,15 +1174,14 @@
       </div>
 
       <div class="mg-footer-col">
-        <h4>Assistenza & Contatti</h4>
-        <p style="color: #999; font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.8rem;">
-          Hai bisogno di consigli sulla scelta delle bacchette o di un ordine personalizzato per conservatori e orchestre?
-        </p>
-        <p style="color: var(--mg-accent-gold); font-size: 0.95rem; font-weight: 600;">
+        <h4>Account & Assistenza</h4>
+        <ul class="mg-footer-links">
+          <li><a href="javascript:void(0)" onclick="handleUserBtnClick()">Accedi / Registrati</a></li>
+          <li><a href="javascript:void(0)" onclick="openAccountModal()">I Miei Ordini & Recapiti</a></li>
+          <li><a href="javascript:void(0)" onclick="openCookieSettings()">Preferenze Cookie</a></li>
+        </ul>
+        <p style="color: var(--mg-accent-gold); font-size: 0.95rem; font-weight: 600; margin-top: 1rem;">
           <i class="fa-solid fa-envelope" style="margin-right: 6px;"></i> info@apinstrument.com
-        </p>
-        <p style="color: #bbb; font-size: 0.85rem; margin-top: 0.5rem;">
-          <i class="fa-solid fa-location-dot" style="margin-right: 6px;"></i> Laboratorio Artigianale - Italia
         </p>
       </div>
 
@@ -675,7 +1193,7 @@
         <div style="display: flex; gap: 16px;">
           <span>100% Handcrafted in Italy</span>
           <span>•</span>
-          <span>Privacy & Cookie Policy</span>
+          <a href="javascript:void(0)" onclick="openCookieSettings()" style="color: inherit; text-decoration: underline;">Cookie & Privacy</a>
         </div>
       </div>
     </div>

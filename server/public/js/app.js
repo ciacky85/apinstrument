@@ -109,12 +109,21 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
   switchSTModel('ST1');
 
+  // 3. Cookie Consent & User Auth initialization
+  checkCookieConsent();
+  checkAuthStatus();
+
   // Key listeners
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeProductModal();
       closeVideoModal();
       closeCraftModal();
+      closeAuthModal();
+      closeAccountModal();
+      closeCheckoutModal();
+      closeCookieSettings();
+      closeOrderSuccessModal();
       if (document.getElementById('cart-drawer')?.classList.contains('open')) {
         toggleCart();
       }
@@ -803,8 +812,12 @@ function renderCartDrawer() {
 
 // Checkout flow
 function initiateCheckout(gateway) {
-  if (cart.length === 0) return;
-  alert(`Reindirizzamento verso il gateway sicuro ${gateway.toUpperCase()}...\nTotale ordine: € ${(cart.reduce((s, i) => s + (i.price * i.qty), 0) + currentShippingRate).toFixed(2)}`);
+  if (cart.length === 0) {
+    showToast('Carrello Vuoto', 'Aggiungi almeno una coppia di bacchette prima di procedere.');
+    return;
+  }
+  if (gateway) switchPaymentMethod(gateway);
+  openCheckoutModal();
 }
 
 // ============================================================================
@@ -860,3 +873,853 @@ function setLanguage(lang) {
   renderCategoriesTree();
   renderProducts();
 }
+
+// ============================================================================
+// GDPR COOKIE CONSENT
+// ============================================================================
+function checkCookieConsent() {
+  const consent = localStorage.getItem('ap_cookie_consent');
+  const banner = document.getElementById('cookie-banner');
+  if (!consent && banner) {
+    banner.style.display = 'block';
+  }
+}
+
+function acceptAllCookies() {
+  const prefs = { necessary: true, analytics: true, timestamp: new Date().toISOString() };
+  localStorage.setItem('ap_cookie_consent', JSON.stringify(prefs));
+  const banner = document.getElementById('cookie-banner');
+  if (banner) banner.style.display = 'none';
+  showToast('Cookie Policy', 'Tutti i cookie sono stati accettati.');
+}
+
+function acceptNecessaryCookies() {
+  const prefs = { necessary: true, analytics: false, timestamp: new Date().toISOString() };
+  localStorage.setItem('ap_cookie_consent', JSON.stringify(prefs));
+  const banner = document.getElementById('cookie-banner');
+  if (banner) banner.style.display = 'none';
+  showToast('Cookie Policy', 'Accettati solo i cookie tecnici necessari.');
+}
+
+function openCookieSettings() {
+  const modal = document.getElementById('cookie-settings-modal');
+  if (!modal) return;
+  const consent = localStorage.getItem('ap_cookie_consent');
+  if (consent) {
+    try {
+      const parsed = JSON.parse(consent);
+      const chk = document.getElementById('chk-cookie-analytics');
+      if (chk) chk.checked = !!parsed.analytics;
+    } catch (e) {}
+  }
+  modal.style.display = 'flex';
+}
+
+function closeCookieSettings() {
+  const modal = document.getElementById('cookie-settings-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function saveCustomCookiePreferences() {
+  const analyticsChecked = !!document.getElementById('chk-cookie-analytics')?.checked;
+  const prefs = { necessary: true, analytics: analyticsChecked, timestamp: new Date().toISOString() };
+  localStorage.setItem('ap_cookie_consent', JSON.stringify(prefs));
+  closeCookieSettings();
+  const banner = document.getElementById('cookie-banner');
+  if (banner) banner.style.display = 'none';
+  showToast('Preferenze Salvate', 'Le tue preferenze sui cookie sono state aggiornate.');
+}
+
+// ============================================================================
+// USER AUTHENTICATION & PROFILE SYSTEM
+// ============================================================================
+let currentUser = null;
+let authToken = localStorage.getItem('ap_auth_token') || null;
+
+async function checkAuthStatus() {
+  if (!authToken) {
+    updateHeaderUserUI();
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/me', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.user) {
+        currentUser = data.user;
+      } else {
+        currentUser = null;
+        authToken = null;
+        localStorage.removeItem('ap_auth_token');
+      }
+    } else {
+      currentUser = null;
+      authToken = null;
+      localStorage.removeItem('ap_auth_token');
+    }
+  } catch (err) {
+    console.warn('Auth check error:', err);
+  }
+
+  updateHeaderUserUI();
+}
+
+function updateHeaderUserUI() {
+  const userBtn = document.getElementById('header-user-btn');
+  const userLabel = document.getElementById('header-user-label');
+  if (!userBtn || !userLabel) return;
+
+  if (currentUser) {
+    const firstName = currentUser.name ? currentUser.name.split(' ')[0] : 'Profilo';
+    userLabel.textContent = `Ciao, ${firstName}`;
+    userBtn.classList.add('logged-in');
+    userBtn.title = `Profilo di ${currentUser.name} - Clicca per recapiti e ordini`;
+  } else {
+    userLabel.textContent = 'Accedi';
+    userBtn.classList.remove('logged-in');
+    userBtn.title = 'Area Personale / Accedi o Registrati';
+  }
+}
+
+function handleUserBtnClick() {
+  if (currentUser) {
+    openAccountModal();
+  } else {
+    openAuthModal('login');
+  }
+}
+
+function openAuthModal(tab = 'login') {
+  const modal = document.getElementById('auth-modal');
+  if (!modal) return;
+  switchAuthTab(tab);
+  
+  const loginErr = document.getElementById('login-error-msg');
+  if (loginErr) loginErr.style.display = 'none';
+  const regErr = document.getElementById('register-error-msg');
+  if (regErr) regErr.style.display = 'none';
+
+  modal.style.display = 'flex';
+}
+
+function closeAuthModal() {
+  const modal = document.getElementById('auth-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function switchAuthTab(tab) {
+  const tabLogin = document.getElementById('tab-btn-login');
+  const tabReg = document.getElementById('tab-btn-register');
+  const viewLogin = document.getElementById('auth-view-login');
+  const viewReg = document.getElementById('auth-view-register');
+
+  if (tab === 'login') {
+    tabLogin?.classList.add('active');
+    tabReg?.classList.remove('active');
+    if (viewLogin) viewLogin.style.display = 'block';
+    if (viewReg) viewReg.style.display = 'none';
+  } else {
+    tabReg?.classList.add('active');
+    tabLogin?.classList.remove('active');
+    if (viewReg) viewReg.style.display = 'block';
+    if (viewLogin) viewLogin.style.display = 'none';
+  }
+}
+
+async function handleLoginSubmit(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email')?.value.trim();
+  const password = document.getElementById('login-password')?.value;
+  const errBox = document.getElementById('login-error-msg');
+  const submitBtn = document.getElementById('btn-login-submit');
+
+  if (!email || !password) return;
+
+  if (errBox) errBox.style.display = 'none';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifica in corso...';
+  }
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      authToken = data.token;
+      currentUser = data.user;
+      localStorage.setItem('ap_auth_token', authToken);
+      updateHeaderUserUI();
+      closeAuthModal();
+      showToast('Benvenuto!', `Accesso effettuato come ${currentUser.name}`);
+      
+      const checkoutModal = document.getElementById('checkout-modal');
+      if (checkoutModal && checkoutModal.style.display === 'flex') {
+        fillCheckoutFromUser();
+      }
+    } else {
+      if (errBox) {
+        errBox.textContent = data.error || 'Credenziali non valide. Riprova.';
+        errBox.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (errBox) {
+      errBox.textContent = 'Errore di connessione al server.';
+      errBox.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Accedi al Tuo Profilo';
+    }
+  }
+}
+
+function fillDemoCredentials() {
+  const emailInput = document.getElementById('login-email');
+  const passInput = document.getElementById('login-password');
+  if (emailInput) emailInput.value = 'cliente@apinstrument.com';
+  if (passInput) passInput.value = 'Password123!';
+  
+  const form = document.getElementById('form-login');
+  if (form) {
+    form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  }
+}
+
+async function handleRegisterSubmit(e) {
+  e.preventDefault();
+  const firstName = document.getElementById('reg-firstname')?.value.trim();
+  const lastName = document.getElementById('reg-lastname')?.value.trim();
+  const email = document.getElementById('reg-email')?.value.trim();
+  const password = document.getElementById('reg-password')?.value;
+  const phone = document.getElementById('reg-phone')?.value.trim() || '';
+  const fiscalCode = document.getElementById('reg-fiscalcode')?.value.trim() || '';
+  const street = document.getElementById('reg-address')?.value.trim() || '';
+  const city = document.getElementById('reg-city')?.value.trim() || '';
+  const postcode = document.getElementById('reg-postcode')?.value.trim() || '';
+  const country = document.getElementById('reg-country')?.value || 'IT';
+  const errBox = document.getElementById('register-error-msg');
+  const submitBtn = document.getElementById('btn-register-submit');
+
+  if (!firstName || !lastName || !email || !password) return;
+
+  if (errBox) errBox.style.display = 'none';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrazione in corso...';
+  }
+
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        fiscalCode,
+        address: {
+          street,
+          city,
+          postcode,
+          country
+        }
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      authToken = data.token;
+      currentUser = data.user;
+      localStorage.setItem('ap_auth_token', authToken);
+      updateHeaderUserUI();
+      closeAuthModal();
+      showToast('Registrazione Completata!', `Benvenuto in AP Instrument, ${currentUser.name}!`);
+      
+      const checkoutModal = document.getElementById('checkout-modal');
+      if (checkoutModal && checkoutModal.style.display === 'flex') {
+        fillCheckoutFromUser();
+      }
+    } else {
+      if (errBox) {
+        errBox.textContent = data.error || 'Impossibile completare la registrazione.';
+        errBox.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (errBox) {
+      errBox.textContent = 'Errore di connessione al server.';
+      errBox.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-user-check"></i> Completa Registrazione';
+    }
+  }
+}
+
+function handleLogout() {
+  currentUser = null;
+  authToken = null;
+  localStorage.removeItem('ap_auth_token');
+  updateHeaderUserUI();
+  closeAccountModal();
+  showToast('Logout', 'Disconnessione effettuata con successo.');
+}
+
+// ============================================================================
+// ACCOUNT DASHBOARD (RECAPITI & STORICO ORDINI)
+// ============================================================================
+function openAccountModal() {
+  if (!currentUser) {
+    openAuthModal('login');
+    return;
+  }
+
+  const modal = document.getElementById('account-modal');
+  if (!modal) return;
+
+  const nameEl = document.getElementById('account-display-name');
+  const emailEl = document.getElementById('account-display-email');
+  if (nameEl) nameEl.textContent = currentUser.name || `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+  if (emailEl) emailEl.textContent = currentUser.email;
+
+  const nameParts = (currentUser.name || '').split(' ');
+  const fName = currentUser.firstName || nameParts[0] || '';
+  const lName = currentUser.lastName || nameParts.slice(1).join(' ') || '';
+
+  const elFname = document.getElementById('acc-firstname');
+  const elLname = document.getElementById('acc-lastname');
+  const elPhone = document.getElementById('acc-phone');
+  const elFiscal = document.getElementById('acc-fiscalcode');
+  const elStreet = document.getElementById('acc-address');
+  const elCity = document.getElementById('acc-city');
+  const elPostcode = document.getElementById('acc-postcode');
+  const elCountry = document.getElementById('acc-country');
+  const elNewPass = document.getElementById('acc-new-password');
+  const msgBox = document.getElementById('profile-msg-box');
+
+  if (elFname) elFname.value = fName;
+  if (elLname) elLname.value = lName;
+  if (elPhone) elPhone.value = currentUser.phone || '';
+  if (elFiscal) elFiscal.value = currentUser.fiscalCode || '';
+  if (elStreet) elStreet.value = currentUser.address?.street || '';
+  if (elCity) elCity.value = currentUser.address?.city || '';
+  if (elPostcode) elPostcode.value = currentUser.address?.postcode || '';
+  if (elCountry && currentUser.address?.country) elCountry.value = currentUser.address.country;
+  if (elNewPass) elNewPass.value = '';
+  if (msgBox) msgBox.style.display = 'none';
+
+  switchAccountTab('profile');
+  loadUserOrders();
+
+  modal.style.display = 'flex';
+}
+
+function closeAccountModal() {
+  const modal = document.getElementById('account-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function switchAccountTab(tab) {
+  const tabProfile = document.getElementById('tab-acc-profile');
+  const tabOrders = document.getElementById('tab-acc-orders');
+  const contentProfile = document.getElementById('acc-content-profile');
+  const contentOrders = document.getElementById('acc-content-orders');
+
+  if (tab === 'profile') {
+    tabProfile?.classList.add('active');
+    tabOrders?.classList.remove('active');
+    if (contentProfile) contentProfile.style.display = 'block';
+    if (contentOrders) contentOrders.style.display = 'none';
+  } else {
+    tabOrders?.classList.add('active');
+    tabProfile?.classList.remove('active');
+    if (contentOrders) contentOrders.style.display = 'block';
+    if (contentProfile) contentProfile.style.display = 'none';
+    loadUserOrders();
+  }
+}
+
+async function handleProfileUpdateSubmit(e) {
+  e.preventDefault();
+  if (!authToken) return;
+
+  const firstName = document.getElementById('acc-firstname')?.value.trim();
+  const lastName = document.getElementById('acc-lastname')?.value.trim();
+  const phone = document.getElementById('acc-phone')?.value.trim();
+  const fiscalCode = document.getElementById('acc-fiscalcode')?.value.trim();
+  const street = document.getElementById('acc-address')?.value.trim();
+  const city = document.getElementById('acc-city')?.value.trim();
+  const postcode = document.getElementById('acc-postcode')?.value.trim();
+  const country = document.getElementById('acc-country')?.value;
+  const newPassword = document.getElementById('acc-new-password')?.value;
+  const msgBox = document.getElementById('profile-msg-box');
+  const submitBtn = document.getElementById('btn-save-profile');
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvataggio...';
+  }
+
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        phone,
+        fiscalCode,
+        address: { street, city, postcode, country },
+        password: newPassword || undefined
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      currentUser = data.user;
+      updateHeaderUserUI();
+      if (msgBox) {
+        msgBox.innerHTML = '<i class="fa-solid fa-circle-check"></i> Profilo e recapiti aggiornati con successo!';
+        msgBox.style.display = 'block';
+      }
+      showToast('Profilo Aggiornato', 'I tuoi dati e indirizzi sono stati salvati.');
+      setTimeout(() => { if (msgBox) msgBox.style.display = 'none'; }, 4000);
+    } else {
+      alert(data.error || 'Errore durante il salvataggio.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Errore di connessione.');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salva Modifiche Profilo';
+    }
+  }
+}
+
+async function loadUserOrders() {
+  if (!authToken) return;
+
+  const listContainer = document.getElementById('account-orders-list');
+  const badgeEl = document.getElementById('account-orders-badge');
+
+  try {
+    const res = await fetch('/api/auth/orders', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const orders = data.orders || [];
+      
+      if (badgeEl) badgeEl.textContent = orders.length;
+
+      if (!listContainer) return;
+
+      if (orders.length === 0) {
+        listContainer.innerHTML = `
+          <div class="orders-empty-state">
+            <i class="fa-solid fa-box-open" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+            <h4>Nessun ordine effettuato</h4>
+            <p>Quando effettui un ordine, lo troverai qui con lo stato di avanzamento e i dettagli di spedizione.</p>
+            <button class="btn-checkout-primary" style="max-width: 250px; margin: 1.5rem auto 0;" onclick="closeAccountModal(); filterByCategory('all');">
+              Esplora il Catalogo
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = orders.map(order => {
+        const dateStr = new Date(order.createdAt).toLocaleDateString('it-IT', {
+          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const statusClass = order.status === 'Completato' ? 'status-completed' : (order.status === 'In Lavorazione' ? 'status-processing' : 'status-pending');
+
+        const itemsHtml = (order.items || []).map(item => `
+          <div class="order-card-item">
+            <span><strong>${item.qty}x</strong> ${item.title}</span>
+            <span>€ ${(item.price * item.qty).toFixed(2)}</span>
+          </div>
+        `).join('');
+
+        return `
+          <div class="order-card">
+            <div class="order-card-header">
+              <div>
+                <span class="order-card-id">${order.orderId}</span>
+                <span class="order-card-date">${dateStr}</span>
+              </div>
+              <div>
+                <span class="order-status-badge ${statusClass}">${order.status}</span>
+              </div>
+            </div>
+
+            <div class="order-card-body">
+              <div class="order-card-items-wrap">
+                ${itemsHtml}
+              </div>
+              <div class="order-card-details">
+                <div>
+                  <small>Spedizione a:</small>
+                  <div>${order.customer?.address || ''}, ${order.customer?.city || ''} (${order.customer?.country || ''})</div>
+                </div>
+                <div>
+                  <small>Pagamento:</small>
+                  <div>${order.paymentMethod === 'carta' ? 'Carta di Credito' : (order.paymentMethod === 'paypal' ? 'PayPal' : 'Bonifico Bancario')}</div>
+                </div>
+                <div style="text-align: right;">
+                  <small>Totale Ordine:</small>
+                  <div class="order-card-total">€ ${Number(order.total).toFixed(2)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+  }
+}
+
+// ============================================================================
+// CHECKOUT & REAL PAYMENT FLOW (MODAL CASSA SICURA)
+// ============================================================================
+let activePaymentMethod = 'carta';
+
+function openCheckoutModal() {
+  if (cart.length === 0) {
+    showToast('Carrello Vuoto', 'Aggiungi almeno una coppia di bacchette prima di procedere alla cassa.');
+    return;
+  }
+
+  // Close cart drawer if open
+  const drawer = document.getElementById('cart-drawer');
+  const overlay = document.getElementById('cart-overlay');
+  if (drawer) drawer.classList.remove('open');
+  if (overlay) overlay.style.display = 'none';
+
+  const modal = document.getElementById('checkout-modal');
+  if (!modal) return;
+
+  // Auto-fill from user if logged in
+  fillCheckoutFromUser();
+
+  // Render items & totals
+  refreshCheckoutSummary();
+
+  modal.style.display = 'flex';
+}
+
+function fillCheckoutFromUser() {
+  const userBanner = document.getElementById('checkout-user-banner');
+  if (currentUser) {
+    if (userBanner) userBanner.style.display = 'flex';
+
+    const nameParts = (currentUser.name || '').split(' ');
+    const fName = currentUser.firstName || nameParts[0] || '';
+    const lName = currentUser.lastName || nameParts.slice(1).join(' ') || '';
+
+    const elFname = document.getElementById('chk-firstname');
+    const elLname = document.getElementById('chk-lastname');
+    const elEmail = document.getElementById('chk-email');
+    const elPhone = document.getElementById('chk-phone');
+    const elAddress = document.getElementById('chk-address');
+    const elCity = document.getElementById('chk-city');
+    const elPostcode = document.getElementById('chk-postcode');
+    const elCountry = document.getElementById('chk-country');
+    const elFiscal = document.getElementById('chk-fiscalcode');
+
+    if (elFname && !elFname.value) elFname.value = fName;
+    if (elLname && !elLname.value) elLname.value = lName;
+    if (elEmail && !elEmail.value) elEmail.value = currentUser.email || '';
+    if (elPhone && !elPhone.value) elPhone.value = currentUser.phone || '';
+    if (elAddress && !elAddress.value) elAddress.value = currentUser.address?.street || '';
+    if (elCity && !elCity.value) elCity.value = currentUser.address?.city || '';
+    if (elPostcode && !elPostcode.value) elPostcode.value = currentUser.address?.postcode || '';
+    if (elCountry && currentUser.address?.country) elCountry.value = currentUser.address.country;
+    if (elFiscal && !elFiscal.value) elFiscal.value = currentUser.fiscalCode || '';
+  } else {
+    if (userBanner) userBanner.style.display = 'none';
+  }
+}
+
+function closeCheckoutModal() {
+  const modal = document.getElementById('checkout-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function handleCheckoutCountryChange() {
+  const country = document.getElementById('chk-country')?.value || 'IT';
+  if (country === 'IT') {
+    currentShippingRate = 9.0;
+  } else if (['DE', 'FR', 'ES', 'AT'].includes(country)) {
+    currentShippingRate = 16.0;
+  } else {
+    currentShippingRate = 25.0;
+  }
+
+  const cartShip = document.getElementById('cart-shipping');
+  if (cartShip) cartShip.textContent = `€ ${currentShippingRate.toFixed(2)}`;
+
+  refreshCheckoutSummary();
+}
+
+function refreshCheckoutSummary() {
+  const summaryBox = document.getElementById('checkout-summary-items');
+  const subtotalEl = document.getElementById('chk-subtotal');
+  const shippingEl = document.getElementById('chk-shipping');
+  const totalEl = document.getElementById('chk-total');
+  const payBtnSpans = document.querySelectorAll('.pay-btn-amount');
+
+  let subtotal = 0;
+  if (summaryBox) {
+    summaryBox.innerHTML = cart.map(item => {
+      const lineTotal = item.price * item.qty;
+      subtotal += lineTotal;
+      const imgUrl = item.thumbnail ? `/uploads/${item.thumbnail}` : FALLBACK_SVG;
+      return `
+        <div class="checkout-summary-item">
+          <img src="${imgUrl}" class="checkout-summary-thumb" onerror="this.onerror=null; this.src='${FALLBACK_SVG}';">
+          <div class="checkout-summary-info">
+            <div class="checkout-summary-title">${item.title}</div>
+            <div class="checkout-summary-qty">Quantità: ${item.qty} × € ${item.price.toFixed(2)}</div>
+          </div>
+          <div class="checkout-summary-price">€ ${lineTotal.toFixed(2)}</div>
+        </div>
+      `;
+    }).join('');
+  } else {
+    subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+  }
+
+  const grandTotal = subtotal + currentShippingRate;
+
+  if (subtotalEl) subtotalEl.textContent = `€ ${subtotal.toFixed(2)}`;
+  if (shippingEl) shippingEl.textContent = `€ ${currentShippingRate.toFixed(2)}`;
+  if (totalEl) totalEl.textContent = `€ ${grandTotal.toFixed(2)}`;
+
+  payBtnSpans.forEach(span => {
+    span.textContent = `€ ${grandTotal.toFixed(2)}`;
+  });
+}
+
+function switchPaymentMethod(method) {
+  activePaymentMethod = method;
+
+  const tabCard = document.getElementById('paytab-card');
+  const tabPaypal = document.getElementById('paytab-paypal');
+  const tabBacs = document.getElementById('paytab-bacs');
+
+  const viewCard = document.getElementById('payview-card');
+  const viewPaypal = document.getElementById('payview-paypal');
+  const viewBacs = document.getElementById('payview-bacs');
+
+  tabCard?.classList.toggle('active', method === 'carta');
+  tabPaypal?.classList.toggle('active', method === 'paypal');
+  tabBacs?.classList.toggle('active', method === 'bacs');
+
+  if (viewCard) viewCard.style.display = method === 'carta' ? 'block' : 'none';
+  if (viewPaypal) viewPaypal.style.display = method === 'paypal' ? 'block' : 'none';
+  if (viewBacs) viewBacs.style.display = method === 'bacs' ? 'block' : 'none';
+}
+
+async function submitCheckoutOrder(method = activePaymentMethod) {
+  const errBox = document.getElementById('checkout-error-box');
+  if (errBox) errBox.style.display = 'none';
+
+  // Validate shipping inputs
+  const firstName = document.getElementById('chk-firstname')?.value.trim();
+  const lastName = document.getElementById('chk-lastname')?.value.trim();
+  const email = document.getElementById('chk-email')?.value.trim();
+  const phone = document.getElementById('chk-phone')?.value.trim();
+  const address = document.getElementById('chk-address')?.value.trim();
+  const city = document.getElementById('chk-city')?.value.trim();
+  const postcode = document.getElementById('chk-postcode')?.value.trim();
+  const country = document.getElementById('chk-country')?.value || 'IT';
+  const fiscalCode = document.getElementById('chk-fiscalcode')?.value.trim() || '';
+  const notes = document.getElementById('chk-notes')?.value.trim() || '';
+
+  if (!firstName || !lastName || !email || !phone || !address || !city || !postcode) {
+    if (errBox) {
+      errBox.textContent = 'Per favore compila tutti i campi obbligatori di spedizione contrassegnati con *.';
+      errBox.style.display = 'block';
+    }
+    return;
+  }
+
+  // Validate Card if paying by card
+  if (method === 'carta') {
+    const cardNum = document.getElementById('card-num')?.value.replace(/\\s/g, '');
+    const cardExp = document.getElementById('card-exp')?.value.trim();
+    const cardCvv = document.getElementById('card-cvv')?.value.trim();
+
+    if (!cardNum || cardNum.length < 12) {
+      if (errBox) {
+        errBox.textContent = 'Inserisci un numero di carta valido per completare la transazione.';
+        errBox.style.display = 'block';
+      }
+      return;
+    }
+    if (!cardExp || !cardExp.includes('/')) {
+      if (errBox) {
+        errBox.textContent = 'Inserisci la data di scadenza della carta (MM/AA).';
+        errBox.style.display = 'block';
+      }
+      return;
+    }
+    if (!cardCvv || cardCvv.length < 3) {
+      if (errBox) {
+        errBox.textContent = 'Inserisci il codice CVV (3 o 4 cifre sul retro della carta).';
+        errBox.style.display = 'block';
+      }
+      return;
+    }
+  }
+
+  const actionBtn = document.querySelector(`.btn-pay-${method}`);
+  let oldBtnHtml = '';
+  if (actionBtn) {
+    oldBtnHtml = actionBtn.innerHTML;
+    actionBtn.disabled = true;
+    actionBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Elaborazione pagamento sicuro in corso...';
+  }
+
+  const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+  const grandTotal = subtotal + currentShippingRate;
+
+  const orderPayload = {
+    customer: {
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      city,
+      postcode,
+      country,
+      fiscalCode,
+      notes
+    },
+    items: [...cart],
+    subtotal: subtotal,
+    shipping: currentShippingRate,
+    total: grandTotal,
+    paymentMethod: method
+  };
+
+  const headers = { 'Content-Type': 'application/json' };
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  try {
+    const res = await fetch('/api/orders/create', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(orderPayload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      const order = data.order;
+      
+      const placedItems = [...cart];
+      cart = [];
+      saveCart();
+      updateCartBadge();
+      renderCartDrawer();
+
+      closeCheckoutModal();
+      openOrderSuccessModal(order, placedItems);
+      showToast('Ordine Confermato!', `Ricevuta ${order.orderId} registrata.`);
+    } else {
+      if (errBox) {
+        errBox.textContent = data.error || 'Errore durante la registrazione dell\'ordine.';
+        errBox.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    console.error('Order submission error:', err);
+    if (errBox) {
+      errBox.textContent = 'Errore di connessione al server di pagamento.';
+      errBox.style.display = 'block';
+    }
+  } finally {
+    if (actionBtn) {
+      actionBtn.disabled = false;
+      actionBtn.innerHTML = oldBtnHtml;
+    }
+  }
+}
+
+function openOrderSuccessModal(order, items) {
+  const modal = document.getElementById('order-success-modal');
+  if (!modal) return;
+
+  const orderIdEl = document.getElementById('success-order-id');
+  const payMethodEl = document.getElementById('success-payment-method');
+  const addressEl = document.getElementById('success-shipping-address');
+  const totalEl = document.getElementById('success-total');
+  const itemsListEl = document.getElementById('success-items-list');
+
+  if (orderIdEl) orderIdEl.textContent = order.orderId;
+  
+  if (payMethodEl) {
+    let methodText = 'Carta di Credito (Autorizzato)';
+    if (order.paymentMethod === 'paypal') methodText = 'PayPal (Transazione Verificata)';
+    if (order.paymentMethod === 'bacs') methodText = 'Bonifico Bancario Anticipato (In attesa di accredito)';
+    payMethodEl.textContent = methodText;
+  }
+
+  if (addressEl) {
+    addressEl.textContent = `${order.customer.firstName} ${order.customer.lastName} • ${order.customer.address}, ${order.customer.city} (${order.customer.country})`;
+  }
+
+  if (totalEl) totalEl.textContent = `€ ${Number(order.total).toFixed(2)}`;
+
+  if (itemsListEl) {
+    itemsListEl.innerHTML = (items || order.items || []).map(item => `
+      <div class="success-item-row">
+        <span><strong>${item.qty}x</strong> ${item.title}</span>
+        <span>€ ${(item.price * item.qty).toFixed(2)}</span>
+      </div>
+    `).join('');
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeOrderSuccessModal() {
+  const modal = document.getElementById('order-success-modal');
+  if (modal) modal.style.display = 'none';
+}
+
