@@ -1,0 +1,17 @@
+services:
+  apinstrument:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: apinstrument-app
+    restart: unless-stopped
+    ports:
+      - "9559:9559"
+    environment:
+      - NODE_ENV=production
+      - PORT=9559
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-sb}
+    volumes:
+      # Persistent external mapping as requested
+      - /srv/docker_conf/configs/apinstrument/data:/app/server/data
+      - /srv/docker_conf/configs/apinstrument/uploads:/app/server/public/uploads

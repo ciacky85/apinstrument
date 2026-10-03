@@ -1,0 +1,28 @@
+# Ignora i file pesanti di backup originali
+apinstrument_280926_files.zip
+apinstrument_280926_files/
+apinstrument_280926_db.sql
+__MACOSX/
+
+# Script temporanei di analisi e parsing locale
+inspect_sql.js
+inspect_content.js
+extract_sql.js
+parse_catalog.js
+parse_products.js
+parse_orders.js
+inspect_attributes.js
+extract_specs.js
+seed_data.js
+verify_migration.js
+terms_raw.txt
+taxonomy_raw.txt
+sql_*.sql
+cleaned_catalog.json
+migrated_orders_summary.json
+
+# Node dependencies
+node_modules/
+npm-debug.log
+.DS_Store
+.env

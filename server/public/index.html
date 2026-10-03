@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AP Instrument | Bacchette Artigianali per Percussioni, Marimba, Vibrafono e Xilofono</title>
+  <meta name="description" content="Bacchette professionali per percussioni fatte a mano in Italia. Marimba, Vibrafono, Xilofono, Glockenspiel e Setup. Qualità sonora superiore ed equilibrio artigianale.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PayPal SDK script will be loaded dynamically -->
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="nav-container" style="padding: 0 1.5rem;">
+      <div><i class="fa-solid fa-gem" style="color: var(--wood-gold); margin-right: 6px;"></i> <span id="top-msg">Bacchette Professionali Artigianali 100% Made in Italy • Spedizioni in Tutto il Mondo</span></div>
+      <div style="display: flex; gap: 16px;">
+        <span><i class="fa-solid fa-shield-halved" style="color: var(--wood-amber);"></i> Pagamenti Sicuri PayPal & Carte</span>
+        <span><i class="fa-solid fa-envelope"></i> info@apinstrument.com</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header & Navigation -->
+  <header class="wood-header">
+    <div class="nav-container">
+      <a href="/" class="logo-wrapper">
+        <div class="logo-symbol">AP</div>
+        <div class="logo-text">
+          <h1>AP Instrument</h1>
+          <span>Handcrafted Mallets</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="nav-links" id="nav-links">
+        <a href="#catalog" class="nav-link active" data-nav="all">Tutti i Modelli</a>
+        <a href="#marimba" class="nav-link" data-cat="marimba">Marimba</a>
+        <a href="#vibrafono" class="nav-link" data-cat="vibrafono">Vibrafono</a>
+        <a href="#xilofono" class="nav-link" data-cat="xilofono">Xilofono</a>
+        <a href="#glockenspiel" class="nav-link" data-cat="glockenspiel">Glockenspiel</a>
+        <a href="#setup" class="nav-link" data-cat="setup">Setup & Multi</a>
+        <a href="#craftsmanship" class="nav-link" onclick="openCraftModal()">Artigianalità</a>
+      </nav>
+
+      <!-- Actions (Lang & Cart) -->
+      <div class="header-actions">
+        <div class="lang-switch">
+          <button class="lang-btn active" id="btn-it" onclick="setLanguage('it')">IT</button>
+          <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">EN</button>
+        </div>
+
+        <button class="cart-icon-btn" onclick="toggleCart()" title="Carrello">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span class="cart-count" id="cart-counter">0</span>
+        </button>
+
+        <button class="mobile-toggle" onclick="toggleMobileNav()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section Craftsmanship & Wood Grain -->
+  <section class="hero-craft">
+    <div class="hero-content">
+      <span class="hero-badge"><i class="fa-solid fa-tree"></i> <span id="hero-badge-txt">Legno Selezionato & Lana Pregiata</span></span>
+      <h2 class="hero-title" id="hero-title">L'Arte Sonora delle Bacchette Artigianali</h2>
+      <p class="hero-subtitle" id="hero-sub">
+        Create a mano con legni nobili di Acero, Ulivo, Palissandro e Rattan naturale. Il perfetto bilanciamento tra peso, flessibilità e proiezione timbrica per marimba, vibrafono e percussioni.
+      </p>
+      <div class="hero-btns">
+        <a href="#catalog" class="btn-primary"><i class="fa-solid fa-music"></i> <span id="btn-explore">Esplora il Catalogo</span></a>
+        <button class="btn-outline" onclick="openCraftModal()"><i class="fa-solid fa-hammer"></i> <span id="btn-story">La Nostra Filosofia</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Catalog Layout: Sidebar + Grid (MG Mallets layout) -->
+  <main class="main-wrapper" id="catalog">
+    
+    <!-- Sidebar: Instruments and Series Tree -->
+    <aside class="catalog-sidebar">
+      <h3 class="sidebar-title"><i class="fa-solid fa-sliders" style="margin-right: 8px;"></i> <span id="txt-categories">Categorie</span></h3>
+      
+      <div id="categories-tree-container">
+        <!-- Rendered dynamically via JavaScript -->
+        <div style="text-align: center; color: var(--wood-text-muted); padding: 1rem;">
+          <i class="fa-solid fa-spinner fa-spin"></i> Caricamento catalogo...
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Products View -->
+    <section class="catalog-content">
+      <!-- Search & Filters Bar -->
+      <div class="catalog-header-bar">
+        <div>
+          <h2 id="active-category-title" style="font-size: 1.8rem; color: var(--wood-primary);">Tutti i Modelli</h2>
+          <span id="products-count-badge" style="font-size: 0.85rem; color: var(--wood-text-muted);">127 modelli disponibili</span>
+        </div>
+
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-box" class="search-input" placeholder="Cerca modello, codice SKU (es. ULV27, M101)..." oninput="handleSearch()">
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-grid" id="products-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Product Detail Modal -->
+  <div class="modal-overlay" id="product-modal" onclick="closeModalOnBg(event)">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-gallery-pane">
+        <img id="modal-img" src="" alt="Product">
+        <div id="modal-gallery-thumbs" style="display: flex; gap: 8px; margin-top: 1rem;"></div>
+      </div>
+      <div class="modal-info-pane">
+        <span class="product-series" id="modal-series">SERIE</span>
+        <h2 class="product-title" id="modal-title" style="font-size: 2rem;">Titolo Modello</h2>
+        <span id="modal-sku" class="product-badge-sku" style="position: static; display: inline-block; width: fit-content; margin-bottom: 1rem;">SKU</span>
+        <div class="product-price" id="modal-price" style="font-size: 1.8rem; margin-bottom: 1.5rem;">€ 0.00</div>
+        
+        <div style="font-size: 0.95rem; color: var(--wood-text-muted); margin-bottom: 1.5rem; line-height: 1.7;" id="modal-desc">
+          Descrizione tecnica del prodotto...
+        </div>
+
+        <h4 style="font-size: 1.1rem; color: var(--wood-primary); margin-bottom: 0.6rem; text-transform: uppercase;">Specifiche Tecniche</h4>
+        <div class="product-specs-pills" id="modal-specs" style="margin-bottom: 2rem;">
+          <!-- Specs -->
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: auto;">
+          <input type="number" id="modal-qty" value="1" min="1" max="50" style="width: 70px; padding: 10px; border: 1px solid var(--wood-border); border-radius: 6px; text-align: center; font-size: 1rem;">
+          <button class="btn-primary" style="flex: 1;" onclick="addModalToCart()"><i class="fa-solid fa-cart-plus"></i> Aggiungi al Carrello</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Craftsmanship / Philosophy Modal -->
+  <div class="modal-overlay" id="craft-modal" onclick="closeModalOnBg(event)">
+    <div class="modal-card" style="max-width: 800px; grid-template-columns: 1fr; padding: 2.5rem;">
+      <button class="modal-close" onclick="closeCraftModal()"><i class="fa-solid fa-xmark"></i></button>
+      <h2 style="font-size: 2.4rem; color: var(--wood-primary); margin-bottom: 1rem;"><i class="fa-solid fa-hammer" style="color: var(--wood-amber);"></i> Artigianalità & Passione AP Instrument</h2>
+      <p style="font-size: 1.05rem; line-height: 1.8; color: var(--wood-text-muted); margin-bottom: 1.2rem;">
+        Ogni bacchetta <strong>AP Instrument</strong> è il frutto di anni di ricerca acustica e manualità artigianale italiana. Selezioniamo accuratamente le migliori essenze lignee (Acero, Ulivo, Rattan di prima scelta) testando ogni asta per peso, densità e risonanza.
+      </p>
+      <p style="font-size: 1.05rem; line-height: 1.8; color: var(--wood-text-muted); margin-bottom: 1.2rem;">
+        L'avvolgimento è realizzato a mano con filati di pura lana merino e fibre ad alta tenacità per garantire un timbro caldo, una dinamica sensibile e un'eccezionale durata all'usura nel tempo.
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+        <div style="background: var(--wood-cream); padding: 1rem; border-radius: 8px; text-align: center;">
+          <i class="fa-solid fa-tree" style="font-size: 1.8rem; color: var(--wood-primary); margin-bottom: 0.5rem;"></i>
+          <h4 style="font-size: 1.1rem;">Legni Pregiati</h4>
+          <p style="font-size: 0.85rem; color: var(--wood-text-muted);">Calibrati e bilanciati al grammo.</p>
+        </div>
+        <div style="background: var(--wood-cream); padding: 1rem; border-radius: 8px; text-align: center;">
+          <i class="fa-solid fa-hand-holding-heart" style="font-size: 1.8rem; color: var(--wood-primary); margin-bottom: 0.5rem;"></i>
+          <h4 style="font-size: 1.1rem;">Fatto a Mano in Italia</h4>
+          <p style="font-size: 0.85rem; color: var(--wood-text-muted);">Cura sartoriale per ogni percussionista.</p>
+        </div>
+        <div style="background: var(--wood-cream); padding: 1rem; border-radius: 8px; text-align: center;">
+          <i class="fa-solid fa-volume-high" style="font-size: 1.8rem; color: var(--wood-primary); margin-bottom: 0.5rem;"></i>
+          <h4 style="font-size: 1.1rem;">Proiezione Sonora</h4>
+          <p style="font-size: 0.85rem; color: var(--wood-text-muted);">Armonici ricchi senza asperità.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart & Checkout Slide-out Drawer -->
+  <div class="cart-drawer-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <h3 style="font-size: 1.4rem; color: var(--wood-primary);"><i class="fa-solid fa-bag-shopping" style="color: var(--wood-amber);"></i> Il Tuo Carrello</h3>
+      <button onclick="toggleCart()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Items List -->
+    <div class="cart-drawer-items" id="cart-items">
+      <div style="text-align: center; color: var(--wood-text-muted); margin-top: 3rem;">
+        <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; color: var(--wood-border); margin-bottom: 1rem;"></i>
+        <p>Il tuo carrello è vuoto</p>
+      </div>
+    </div>
+
+    <!-- Footer & Checkout Form -->
+    <div class="cart-drawer-footer" id="cart-footer" style="display: none;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem; font-size: 0.95rem;">
+        <span>Subtotale:</span>
+        <strong id="cart-subtotal">€ 0.00</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.95rem;">
+        <span>Spedizione stimata:</span>
+        <strong id="cart-shipping">€ 9.00</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 1.4rem; font-size: 1.3rem; color: var(--wood-primary); border-top: 1px solid var(--wood-border); padding-top: 0.8rem;">
+        <span>Totale:</span>
+        <strong id="cart-total">€ 0.00</strong>
+      </div>
+
+      <!-- Checkout Form Trigger -->
+      <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="showCheckoutView()">
+        <i class="fa-solid fa-lock"></i> Procedi all'Acquisto
+      </button>
+    </div>
+
+    <!-- Checkout Details Pane (Hidden by default) -->
+    <div id="checkout-pane" style="display: none; padding: 1.5rem; overflow-y: auto; height: 100%;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem;">
+        <button onclick="hideCheckoutView()" style="background: none; border: none; color: var(--wood-primary); cursor: pointer; font-weight: 600;"><i class="fa-solid fa-arrow-left"></i> Torna al Carrello</button>
+        <span style="font-size: 0.85rem; color: var(--wood-text-muted);">Checkout Sicuro</span>
+      </div>
+
+      <h3 style="font-size: 1.4rem; color: var(--wood-primary); margin-bottom: 1rem;">Dati di Spedizione & Fattura</h3>
+      <form id="checkout-form" onsubmit="handleOrderSubmit(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <input type="text" id="cust-first" placeholder="Nome *" required class="search-input" style="border-radius: 6px;">
+          <input type="text" id="cust-last" placeholder="Cognome *" required class="search-input" style="border-radius: 6px;">
+        </div>
+        <div style="margin-bottom: 8px;">
+          <input type="email" id="cust-email" placeholder="Email *" required class="search-input" style="border-radius: 6px;">
+        </div>
+        <div style="margin-bottom: 8px;">
+          <input type="tel" id="cust-phone" placeholder="Telefono *" required class="search-input" style="border-radius: 6px;">
+        </div>
+        <div style="margin-bottom: 8px;">
+          <input type="text" id="cust-addr" placeholder="Indirizzo e Numero Civico *" required class="search-input" style="border-radius: 6px;">
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <input type="text" id="cust-city" placeholder="Città *" required class="search-input" style="border-radius: 6px;">
+          <input type="text" id="cust-zip" placeholder="CAP *" required class="search-input" style="border-radius: 6px;">
+        </div>
+        <div style="margin-bottom: 8px;">
+          <select id="cust-country" class="search-input" style="border-radius: 6px;" onchange="updateShippingCountry()">
+            <option value="IT">Italia (€ 9.00)</option>
+            <option value="FR">Francia (€ 16.00)</option>
+            <option value="DE">Germania (€ 16.00)</option>
+            <option value="ES">Spagna (€ 16.00)</option>
+            <option value="OTHER">Altri Paesi UE / Extra UE (€ 25.00)</option>
+          </select>
+        </div>
+
+        <!-- Italian Fiscal Code / P.IVA support (from WooCommerce plugin) -->
+        <div style="margin-bottom: 1rem; border-top: 1px solid var(--wood-border); padding-top: 0.8rem;">
+          <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--wood-text-muted); font-weight: 700; display: block; margin-bottom: 4px;">Dati Fiscali Italia (Opzionali)</span>
+          <input type="text" id="cust-cf" placeholder="Codice Fiscale" class="search-input" style="border-radius: 6px; margin-bottom: 6px;">
+          <input type="text" id="cust-piva" placeholder="Partita IVA" class="search-input" style="border-radius: 6px;">
+        </div>
+
+        <h4 style="font-size: 1.1rem; color: var(--wood-primary); margin-bottom: 0.8rem;">Metodo di Pagamento</h4>
+        
+        <!-- PayPal Button Container -->
+        <div id="paypal-button-container" style="margin-bottom: 1rem;">
+          <button type="button" class="btn-primary" style="width: 100%; justify-content: center; background: #0070ba;" onclick="processPayment('paypal')">
+            <i class="fa-brands fa-paypal"></i> Paga con PayPal o Carta
+          </button>
+        </div>
+
+        <button type="button" class="btn-outline" style="width: 100%; color: var(--wood-text-dark); border-color: var(--wood-border); margin-bottom: 1rem;" onclick="processPayment('bacs')">
+          <i class="fa-solid fa-building-columns"></i> Bonifico Bancario Diretto
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="wood-footer">
+    <div class="footer-top">
+      <div class="footer-col">
+        <div class="logo-wrapper" style="margin-bottom: 1rem;">
+          <div class="logo-symbol">AP</div>
+          <div class="logo-text">
+            <h1 style="color: #fff;">AP Instrument</h1>
+            <span>Handcrafted Mallets</span>
+          </div>
+        </div>
+        <p>
+          Eccellenza artigianale italiana nella costruzione di bacchette per percussioni, marimba, vibrafono, xilofono e glockenspiel. Creati per esaltare la voce di ogni strumento a percussione.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Collezioni</h4>
+        <ul>
+          <li><a href="#marimba" onclick="filterByCategory('marimba')">Bacchette Marimba</a></li>
+          <li><a href="#vibrafono" onclick="filterByCategory('vibrafono')">Bacchette Vibrafono</a></li>
+          <li><a href="#xilofono" onclick="filterByCategory('xilofono')">Bacchette Xilofono</a></li>
+          <li><a href="#glockenspiel" onclick="filterByCategory('glockenspiel')">Glockenspiel</a></li>
+          <li><a href="#setup" onclick="filterByCategory('setup')">Multi-percussione / Setup</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Informazioni</h4>
+        <ul>
+          <li><a href="javascript:void(0)" onclick="openCraftModal()">La Nostra Bottega</a></li>
+          <li><a href="javascript:void(0)" onclick="alert('Spedizioni assicurate tramite corriere espresso in 24-48h in Italia, 3-5 giorni in Europa.')">Spedizioni & Resi</a></li>
+          <li><a href="javascript:void(0)" onclick="alert('Pagamenti crittografati tramite PayPal e Carte di Credito/Debito.')">Pagamenti Sicuri</a></li>
+          <li><a href="mailto:info@apinstrument.com">Assistenza Clienti</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contatti</h4>
+        <p><i class="fa-solid fa-location-dot" style="color: var(--wood-gold); margin-right: 6px;"></i> Italia • Fatto a Mano</p>
+        <p style="margin-top: 6px;"><i class="fa-solid fa-envelope" style="color: var(--wood-gold); margin-right: 6px;"></i> info@apinstrument.com</p>
+        <div style="display: flex; gap: 12px; margin-top: 1rem;">
+          <a href="#" style="color: var(--wood-gold); font-size: 1.2rem;"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" style="color: var(--wood-gold); font-size: 1.2rem;"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#" style="color: var(--wood-gold); font-size: 1.2rem;"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 AP Instrument. All rights reserved. Handcrafted Mallets & Percussions.</p>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
