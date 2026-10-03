@@ -113,6 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
   checkCookieConsent();
   checkAuthStatus();
 
+  // Clear error styling dynamically when typing
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('input-error')) {
+      e.target.classList.remove('input-error');
+    }
+  });
+
   // Key listeners
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -1414,7 +1421,7 @@ async function loadUserOrders() {
 // ============================================================================
 let activePaymentMethod = 'carta';
 
-function openCheckoutModal() {
+function openCheckoutModal(preferredMethod = 'carta') {
   if (cart.length === 0) {
     showToast('Carrello Vuoto', 'Aggiungi almeno una coppia di bacchette prima di procedere alla cassa.');
     return;
@@ -1429,8 +1436,20 @@ function openCheckoutModal() {
   const modal = document.getElementById('checkout-modal');
   if (!modal) return;
 
+  // Clear any old alerts or errors
+  const errBox = document.getElementById('checkout-error-box');
+  const errAlert = document.getElementById('checkout-form-alert');
+  if (errBox) errBox.style.display = 'none';
+  if (errAlert) errAlert.style.display = 'none';
+  document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
   // Auto-fill from user if logged in
   fillCheckoutFromUser();
+
+  // Activate chosen payment tab
+  if (preferredMethod) {
+    switchPaymentMethod(preferredMethod);
+  }
 
   // Render items & totals
   refreshCheckoutSummary();
@@ -1440,8 +1459,11 @@ function openCheckoutModal() {
 
 function fillCheckoutFromUser() {
   const userBanner = document.getElementById('checkout-user-banner');
+  const guestBanner = document.getElementById('checkout-guest-banner');
+
   if (currentUser) {
     if (userBanner) userBanner.style.display = 'flex';
+    if (guestBanner) guestBanner.style.display = 'none';
 
     const nameParts = (currentUser.name || '').split(' ');
     const fName = currentUser.firstName || nameParts[0] || '';
@@ -1468,7 +1490,67 @@ function fillCheckoutFromUser() {
     if (elFiscal && !elFiscal.value) elFiscal.value = currentUser.fiscalCode || '';
   } else {
     if (userBanner) userBanner.style.display = 'none';
+    if (guestBanner) guestBanner.style.display = 'flex';
   }
+}
+
+function autoFillDemoCheckout() {
+  const elFname = document.getElementById('chk-firstname');
+  const elLname = document.getElementById('chk-lastname');
+  const elEmail = document.getElementById('chk-email');
+  const elPhone = document.getElementById('chk-phone');
+  const elAddress = document.getElementById('chk-address');
+  const elCity = document.getElementById('chk-city');
+  const elPostcode = document.getElementById('chk-postcode');
+  const elCountry = document.getElementById('chk-country');
+
+  if (elFname) elFname.value = 'Marco';
+  if (elLname) elLname.value = 'Bianchi';
+  if (elEmail) elEmail.value = 'marco.bianchi@esempio.it';
+  if (elPhone) elPhone.value = '+39 340 1234567';
+  if (elAddress) elAddress.value = 'Via dei Liutai 42';
+  if (elCity) elCity.value = 'Milano';
+  if (elPostcode) elPostcode.value = '20121';
+  if (elCountry) elCountry.value = 'IT';
+
+  autoFillDemoCard();
+
+  document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+  const errAlert = document.getElementById('checkout-form-alert');
+  if (errAlert) errAlert.style.display = 'none';
+  const errBox = document.getElementById('checkout-error-box');
+  if (errBox) errBox.style.display = 'none';
+
+  showToast('Dati Demo Inseriti', 'Dati di spedizione e carta compilati per il test.');
+}
+
+function autoFillDemoCard() {
+  const elCardNum = document.getElementById('card-num');
+  const elCardExp = document.getElementById('card-exp');
+  const elCardCvv = document.getElementById('card-cvv');
+  if (elCardNum) elCardNum.value = '4532 8900 1234 5678';
+  if (elCardExp) elCardExp.value = '12/28';
+  if (elCardCvv) elCardCvv.value = '789';
+  elCardNum?.classList.remove('input-error');
+  elCardExp?.classList.remove('input-error');
+  elCardCvv?.classList.remove('input-error');
+}
+
+function formatCardNumber(input) {
+  let val = input.value.replace(/\D/g, '').substring(0, 16);
+  let formatted = val.match(/.{1,4}/g)?.join(' ') || val;
+  input.value = formatted;
+  input.classList.remove('input-error');
+}
+
+function formatCardExpiry(input) {
+  let val = input.value.replace(/\D/g, '').substring(0, 4);
+  if (val.length >= 3) {
+    input.value = val.substring(0, 2) + '/' + val.substring(2);
+  } else {
+    input.value = val;
+  }
+  input.classList.remove('input-error');
 }
 
 function closeCheckoutModal() {
@@ -1553,9 +1635,101 @@ function switchPaymentMethod(method) {
 
 async function submitCheckoutOrder(method = activePaymentMethod) {
   const errBox = document.getElementById('checkout-error-box');
+  const errAlert = document.getElementById('checkout-form-alert');
   if (errBox) errBox.style.display = 'none';
+  if (errAlert) errAlert.style.display = 'none';
+
+  document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
 
   // Validate shipping inputs
+  const requiredFields = [
+    { id: 'chk-firstname', label: 'Nome' },
+    { id: 'chk-lastname', label: 'Cognome' },
+    { id: 'chk-email', label: 'Email di Conferma', isEmail: true },
+    { id: 'chk-phone', label: 'Telefono per il corriere' },
+    { id: 'chk-address', label: 'Indirizzo di consegna' },
+    { id: 'chk-city', label: 'Città' },
+    { id: 'chk-postcode', label: 'CAP' }
+  ];
+
+  let missing = [];
+  requiredFields.forEach(f => {
+    const el = document.getElementById(f.id);
+    const val = el?.value.trim();
+    if (!val || (f.isEmail && !val.includes('@'))) {
+      if (el) el.classList.add('input-error');
+      missing.push(f.label);
+    }
+  });
+
+  if (missing.length > 0) {
+    const errorMsg = `Compila tutti i campi di spedizione evidenziati in rosso: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? '...' : ''}`;
+    if (errAlert) {
+      errAlert.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${errorMsg}`;
+      errAlert.style.display = 'flex';
+    }
+    if (errBox) {
+      errBox.textContent = errorMsg;
+      errBox.style.display = 'block';
+    }
+    showToast('Dati Incompleti', 'Compila i campi di spedizione obbligatori.', false);
+    const firstInvalid = document.querySelector('.input-error');
+    if (firstInvalid) firstInvalid.focus();
+    return;
+  }
+
+  // Validate Card if paying by card
+  if (method === 'carta') {
+    const cardNumInput = document.getElementById('card-num');
+    const cardExpInput = document.getElementById('card-exp');
+    const cardCvvInput = document.getElementById('card-cvv');
+
+    const cardNum = cardNumInput?.value.replace(/\s/g, '');
+    const cardExp = cardExpInput?.value.trim();
+    const cardCvv = cardCvvInput?.value.trim();
+
+    if (!cardNum || cardNum.length < 12) {
+      cardNumInput?.classList.add('input-error');
+      const msg = 'Inserisci un numero di carta valido (es. 4532 •••• •••• 8910).';
+      if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+      showToast('Numero Carta', msg);
+      cardNumInput?.focus();
+      return;
+    }
+    if (!cardExp || !cardExp.includes('/')) {
+      cardExpInput?.classList.add('input-error');
+      const msg = 'Inserisci la data di scadenza della carta (MM/AA, es. 12/28).';
+      if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+      showToast('Scadenza Carta', msg);
+      cardExpInput?.focus();
+      return;
+    }
+    if (!cardCvv || cardCvv.length < 3) {
+      cardCvvInput?.classList.add('input-error');
+      const msg = 'Inserisci il codice di sicurezza CVV (3 o 4 cifre).';
+      if (errBox) { errBox.textContent = msg; errBox.style.display = 'block'; }
+      showToast('CVV Carta', msg);
+      cardCvvInput?.focus();
+      return;
+    }
+  }
+
+  // Show processing overlay
+  const processingOverlay = document.getElementById('payment-processing-overlay');
+  const processingMsg = document.getElementById('payment-processing-msg');
+  if (processingOverlay) {
+    if (processingMsg) {
+      if (method === 'paypal') {
+        processingMsg.textContent = 'Connessione protetta al gateway PayPal e autorizzazione transazione...';
+      } else if (method === 'carta') {
+        processingMsg.textContent = 'Verifica 3D-Secure con il circuito bancario in corso...';
+      } else {
+        processingMsg.textContent = 'Generazione coordinate bancarie e conferma ordine in corso...';
+      }
+    }
+    processingOverlay.style.display = 'flex';
+  }
+
   const firstName = document.getElementById('chk-firstname')?.value.trim();
   const lastName = document.getElementById('chk-lastname')?.value.trim();
   const email = document.getElementById('chk-email')?.value.trim();
@@ -1566,51 +1740,6 @@ async function submitCheckoutOrder(method = activePaymentMethod) {
   const country = document.getElementById('chk-country')?.value || 'IT';
   const fiscalCode = document.getElementById('chk-fiscalcode')?.value.trim() || '';
   const notes = document.getElementById('chk-notes')?.value.trim() || '';
-
-  if (!firstName || !lastName || !email || !phone || !address || !city || !postcode) {
-    if (errBox) {
-      errBox.textContent = 'Per favore compila tutti i campi obbligatori di spedizione contrassegnati con *.';
-      errBox.style.display = 'block';
-    }
-    return;
-  }
-
-  // Validate Card if paying by card
-  if (method === 'carta') {
-    const cardNum = document.getElementById('card-num')?.value.replace(/\\s/g, '');
-    const cardExp = document.getElementById('card-exp')?.value.trim();
-    const cardCvv = document.getElementById('card-cvv')?.value.trim();
-
-    if (!cardNum || cardNum.length < 12) {
-      if (errBox) {
-        errBox.textContent = 'Inserisci un numero di carta valido per completare la transazione.';
-        errBox.style.display = 'block';
-      }
-      return;
-    }
-    if (!cardExp || !cardExp.includes('/')) {
-      if (errBox) {
-        errBox.textContent = 'Inserisci la data di scadenza della carta (MM/AA).';
-        errBox.style.display = 'block';
-      }
-      return;
-    }
-    if (!cardCvv || cardCvv.length < 3) {
-      if (errBox) {
-        errBox.textContent = 'Inserisci il codice CVV (3 o 4 cifre sul retro della carta).';
-        errBox.style.display = 'block';
-      }
-      return;
-    }
-  }
-
-  const actionBtn = document.querySelector(`.btn-pay-${method}`);
-  let oldBtnHtml = '';
-  if (actionBtn) {
-    oldBtnHtml = actionBtn.innerHTML;
-    actionBtn.disabled = true;
-    actionBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Elaborazione pagamento sicuro in corso...';
-  }
 
   const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
   const grandTotal = subtotal + currentShippingRate;
@@ -1641,6 +1770,9 @@ async function submitCheckoutOrder(method = activePaymentMethod) {
   }
 
   try {
+    // 700ms realistic bank handshake simulation
+    await new Promise(r => setTimeout(r, 700));
+
     const res = await fetch('/api/orders/create', {
       method: 'POST',
       headers: headers,
@@ -1651,17 +1783,19 @@ async function submitCheckoutOrder(method = activePaymentMethod) {
 
     if (res.ok && data.success) {
       const order = data.order;
-      
       const placedItems = [...cart];
+
       cart = [];
       saveCart();
       updateCartBadge();
       renderCartDrawer();
 
+      if (processingOverlay) processingOverlay.style.display = 'none';
       closeCheckoutModal();
       openOrderSuccessModal(order, placedItems);
-      showToast('Ordine Confermato!', `Ricevuta ${order.orderId} registrata.`);
+      showToast('Pagamento Confermato!', `Ricevuta ${order.orderId} registrata con successo.`);
     } else {
+      if (processingOverlay) processingOverlay.style.display = 'none';
       if (errBox) {
         errBox.textContent = data.error || 'Errore durante la registrazione dell\'ordine.';
         errBox.style.display = 'block';
@@ -1669,14 +1803,10 @@ async function submitCheckoutOrder(method = activePaymentMethod) {
     }
   } catch (err) {
     console.error('Order submission error:', err);
+    if (processingOverlay) processingOverlay.style.display = 'none';
     if (errBox) {
-      errBox.textContent = 'Errore di connessione al server di pagamento.';
+      errBox.textContent = 'Errore di connessione durante la transazione.';
       errBox.style.display = 'block';
-    }
-  } finally {
-    if (actionBtn) {
-      actionBtn.disabled = false;
-      actionBtn.innerHTML = oldBtnHtml;
     }
   }
 }

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=2.2.0">
 </head>
 <body>
 
@@ -769,32 +769,45 @@
         <span>I tuoi dati e indirizzo di spedizione sono stati pre-caricati dal tuo account!</span>
       </div>
 
+      <!-- Guest Notice with Fast Demo Autofill Helper -->
+      <div id="checkout-guest-banner" class="checkout-guest-banner">
+        <div class="guest-banner-text">
+          <i class="fa-solid fa-user-circle"></i>
+          <span>Sei già cliente? <a href="javascript:void(0)" onclick="openAuthModal('login')">Accedi al tuo account</a> per caricare i tuoi indirizzi salvati.</span>
+        </div>
+        <button type="button" class="btn-demo-autofill" onclick="autoFillDemoCheckout()">
+          <i class="fa-solid fa-bolt"></i> Compila con Dati Demo (1-Click)
+        </button>
+      </div>
+
       <div class="checkout-grid">
         
         <!-- Left Column: Shipping & Billing Form -->
         <div class="checkout-col-shipping">
           <h3 class="checkout-section-title"><i class="fa-solid fa-truck-fast"></i> 1. Dati di Spedizione & Contatto</h3>
           
-          <form id="checkout-form">
+          <div id="checkout-form-alert" class="checkout-form-alert" style="display: none;"></div>
+
+          <form id="checkout-form" onsubmit="event.preventDefault();">
             <div class="form-row-2">
               <div class="form-group">
                 <label for="chk-firstname">Nome *</label>
-                <input type="text" id="chk-firstname" class="auth-input" required>
+                <input type="text" id="chk-firstname" class="auth-input" placeholder="Nome" required>
               </div>
               <div class="form-group">
                 <label for="chk-lastname">Cognome *</label>
-                <input type="text" id="chk-lastname" class="auth-input" required>
+                <input type="text" id="chk-lastname" class="auth-input" placeholder="Cognome" required>
               </div>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
                 <label for="chk-email">Email di Conferma Ordine *</label>
-                <input type="email" id="chk-email" class="auth-input" required>
+                <input type="email" id="chk-email" class="auth-input" placeholder="email@dominio.it" required>
               </div>
               <div class="form-group">
                 <label for="chk-phone">Telefono per il Corriere *</label>
-                <input type="tel" id="chk-phone" class="auth-input" required>
+                <input type="tel" id="chk-phone" class="auth-input" placeholder="+39 340 1234567" required>
               </div>
             </div>
 
@@ -806,11 +819,11 @@
             <div class="form-row-3">
               <div class="form-group">
                 <label for="chk-city">Città *</label>
-                <input type="text" id="chk-city" class="auth-input" required>
+                <input type="text" id="chk-city" class="auth-input" placeholder="Città" required>
               </div>
               <div class="form-group">
                 <label for="chk-postcode">CAP *</label>
-                <input type="text" id="chk-postcode" class="auth-input" required>
+                <input type="text" id="chk-postcode" class="auth-input" placeholder="CAP (es. 20121)" required>
               </div>
               <div class="form-group">
                 <label for="chk-country">Nazione *</label>
@@ -830,7 +843,7 @@
 
             <div class="form-group">
               <label for="chk-fiscalcode">Codice Fiscale o P.IVA (opzionale per fattura fiscale)</label>
-              <input type="text" id="chk-fiscalcode" class="auth-input">
+              <input type="text" id="chk-fiscalcode" class="auth-input" placeholder="Opzionale">
             </div>
 
             <div class="form-group">
@@ -881,16 +894,19 @@
           <!-- Card Form View -->
           <div class="payment-view" id="payview-card">
             <div class="form-group">
-              <label for="card-num">Numero Carta di Credito / Debito</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label for="card-num" style="margin-bottom: 0;">Numero Carta di Credito / Debito</label>
+                <button type="button" class="btn-mini-demo-card" onclick="autoFillDemoCard()">Usa Carta Demo</button>
+              </div>
               <div class="card-input-wrap">
-                <input type="text" id="card-num" class="auth-input" placeholder="4532 •••• •••• 8910" maxlength="19">
+                <input type="text" id="card-num" class="auth-input" placeholder="4532 •••• •••• 8910" maxlength="19" oninput="formatCardNumber(this)">
                 <i class="fa-brands fa-cc-visa card-icon-preview"></i>
               </div>
             </div>
             <div class="form-row-2">
               <div class="form-group">
                 <label for="card-exp">Scadenza (MM/AA)</label>
-                <input type="text" id="card-exp" class="auth-input" placeholder="12/28" maxlength="5">
+                <input type="text" id="card-exp" class="auth-input" placeholder="12/28" maxlength="5" oninput="formatCardExpiry(this)">
               </div>
               <div class="form-group">
                 <label for="card-cvv">CVV</label>
@@ -904,11 +920,17 @@
 
           <!-- PayPal Form View -->
           <div class="payment-view" id="payview-paypal" style="display: none;">
-            <p style="font-size: 0.88rem; color: var(--mg-text-muted); margin-bottom: 1rem;">
-              Sarai reindirizzato al server sicuro PayPal per completare la transazione o autorizzare il pagamento con 1 click.
-            </p>
+            <div class="paypal-info-banner">
+              <i class="fa-brands fa-paypal" style="font-size: 2rem; color: #0070ba;"></i>
+              <div>
+                <strong>Pagamento Istantaneo PayPal</strong>
+                <p style="font-size: 0.85rem; color: var(--mg-text-muted); margin: 4px 0 0 0;">
+                  Transazione protetta con Protezione Acquisti PayPal e crittografia bancaria 256-bit.
+                </p>
+              </div>
+            </div>
             <button type="button" class="btn-pay-action btn-pay-paypal" onclick="submitCheckoutOrder('paypal')">
-              <i class="fa-brands fa-paypal"></i> Paga con PayPal (<span class="pay-btn-amount">€ 0.00</span>)
+              <i class="fa-brands fa-paypal"></i> Paga Ora con PayPal (<span class="pay-btn-amount">€ 0.00</span>)
             </button>
           </div>
 
@@ -920,7 +942,7 @@
                 Banca: <strong>Banca Intesa Sanpaolo</strong><br>
                 Intestatario: <strong>AP Instrument di Percussioni</strong><br>
                 IBAN: <strong>IT60 X054 2811 1010 0000 0123 456</strong><br>
-                Causale: <em>Verrà fornita con il numero d'ordine</em>
+                Causale: <em>Verrà generata con il numero d'ordine</em>
               </div>
             </div>
             <button type="button" class="btn-pay-action btn-pay-bacs" onclick="submitCheckoutOrder('bacs')">
@@ -932,6 +954,20 @@
 
         </div>
 
+      </div>
+
+      <!-- Live Payment Processing Overlay -->
+      <div id="payment-processing-overlay" class="payment-processing-overlay" style="display: none;">
+        <div class="processing-card">
+          <div class="processing-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+          <h3 style="font-family: var(--mg-font-heading); font-size: 1.3rem; margin: 12px 0 6px;">Elaborazione Transazione Sicura</h3>
+          <p id="payment-processing-msg" style="font-size: 0.9rem; color: var(--mg-text-muted); margin: 0;">
+            Connessione sicura al server bancario e autorizzazione in corso...
+          </p>
+          <div style="margin-top: 14px; font-size: 0.8rem; color: #888;">
+            <i class="fa-solid fa-shield-halved" style="color: #55c777;"></i> Certificato SSL 256-Bit • Non chiudere la finestra
+          </div>
+        </div>
       </div>
 
     </div>
@@ -1061,8 +1097,11 @@
 
       <!-- Checkout Actions: Leads directly to real payment & shipping page -->
       <div class="cart-checkout-actions">
-        <button class="btn-checkout-primary" onclick="openCheckoutModal()">
+        <button class="btn-checkout-primary" onclick="openCheckoutModal('carta')">
           <i class="fa-solid fa-lock"></i> Procedi all'Acquisto & Spedizione
+        </button>
+        <button class="btn-checkout-paypal-fast" onclick="openCheckoutModal('paypal')">
+          <i class="fa-brands fa-paypal"></i> Cassa Veloce con PayPal
         </button>
       </div>
 
@@ -1200,9 +1239,9 @@
   </footer>
 
   <!-- Bundled Fast Catalog Data Cache -->
-  <script src="/js/catalog-data.js"></script>
+  <script src="/js/catalog-data.js?v=2.2.0"></script>
   <!-- Main Application Logic -->
-  <script src="/js/app.js"></script>
+  <script src="/js/app.js?v=2.2.0"></script>
 
 </body>
 </html>

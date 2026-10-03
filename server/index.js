@@ -241,10 +241,19 @@ app.use('/uploads', (req, res, next) => {
   next();
 });
 
-// Serve frontend static assets (CSS, JS, HTML)
+// Serve frontend static assets (CSS, JS, HTML) with strict cache-busting headers for Cloudflare/browsers
 app.use(express.static(path.join(__dirname, 'public'), {
-  etag: false,
-  maxAge: 0
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    }
+  }
 }));
 
 // ============================================================================
