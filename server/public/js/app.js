@@ -8,10 +8,9 @@ let currentShippingRate = 9.0;
 document.addEventListener('DOMContentLoaded', () => {
   loadCatalog();
   updateCartBadge();
-  setupNavLinks();
 });
 
-// 1. Fetch catalog from backend API
+// 1. Load catalog from API
 async function loadCatalog() {
   try {
     const [resCats, resProds] = await Promise.all([
@@ -27,54 +26,56 @@ async function loadCatalog() {
     }
   } catch (err) {
     console.error('Error loading catalog:', err);
+    document.getElementById('products-grid').innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #ff5555;">
+        <p>Errore di caricamento del catalogo. Assicurati che il server sia avviato.</p>
+      </div>
+    `;
   }
 }
 
-// 2. Render sidebar categories (MG Mallets tree style)
+// 2. Render sidebar categories (Right Column, MG Mallets exact style)
 function renderCategoriesTree() {
   const container = document.getElementById('categories-tree-container');
   if (!container) return;
 
   const topCats = catalogData.categories.filter(c => c.parentId === 0 && c.count > 0);
   
-  let html = `<div class="category-group">
-    <div class="cat-parent ${activeCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">
-      <span><i class="fa-solid fa-layer-group" style="margin-right: 6px; color: var(--wood-amber);"></i> ${currentLang === 'it' ? 'Tutti i Prodotti' : 'All Products'}</span>
-      <span class="subcat-count">${catalogData.products.length}</span>
+  let html = `
+    <div class="mg-cat-header ${activeCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">
+      <span>TUTTI I PRODOTTI</span>
+      <span style="font-size: 0.8rem; color: var(--mg-text-muted);">${catalogData.products.length}</span>
     </div>
-  </div>`;
+  `;
 
   for (const tc of topCats) {
     const subcats = catalogData.categories.filter(c => c.parentId === tc.id && c.count > 0);
     const isCatActive = activeCategory === tc.slug;
 
-    html += `<div class="category-group">
-      <div class="cat-parent ${isCatActive ? 'active' : ''}" onclick="filterByCategory('${tc.slug}')">
+    html += `
+      <div class="mg-cat-header ${isCatActive ? 'active' : ''}" onclick="filterByCategory('${tc.slug}')">
         <span>${tc.name[currentLang] || tc.name.it}</span>
-        <span class="subcat-count">${tc.count}</span>
-      </div>`;
+        <span style="font-size: 0.8rem; color: var(--mg-text-muted);">${tc.count}</span>
+      </div>
+    `;
 
     if (subcats.length > 0) {
-      html += `<ul class="subcat-list">`;
       for (const sc of subcats) {
         const isSubActive = activeCategory === sc.slug;
-        html += `<li class="subcat-item">
-          <a href="javascript:void(0)" class="subcat-link ${isSubActive ? 'active' : ''}" onclick="filterByCategory('${sc.slug}')">
-            <span>› ${sc.name[currentLang] || sc.name.it}</span>
-            <span class="subcat-count">${sc.count}</span>
-          </a>
-        </li>`;
+        html += `
+          <div class="mg-subcat-item ${isSubActive ? 'active' : ''}" onclick="filterByCategory('${sc.slug}')">
+            <span><span class="chevron">&gt;&gt;</span> ${sc.name[currentLang] || sc.name.it}</span>
+            <span style="font-size: 0.75rem; color: var(--mg-text-muted);">${sc.count}</span>
+          </div>
+        `;
       }
-      html += `</ul>`;
     }
-
-    html += `</div>`;
   }
 
   container.innerHTML = html;
 }
 
-// 3. Render Products Grid
+// 3. Render Products Grid (MG Mallets Card Style)
 function renderProducts() {
   const grid = document.getElementById('products-grid');
   const countBadge = document.getElementById('products-count-badge');
@@ -88,10 +89,10 @@ function renderProducts() {
     filtered = filtered.filter(p => p.categories.some(c => c.slug === activeCategory || c.parentId === getCatIdBySlug(activeCategory)));
     const activeCatObj = catalogData.categories.find(c => c.slug === activeCategory);
     if (activeCatObj && titleElem) {
-      titleElem.textContent = activeCatObj.name[currentLang] || activeCatObj.name.it;
+      titleElem.textContent = (activeCatObj.name[currentLang] || activeCatObj.name.it).toUpperCase();
     }
   } else {
-    if (titleElem) titleElem.textContent = currentLang === 'it' ? 'Tutti i Modelli' : 'All Models';
+    if (titleElem) titleElem.textContent = currentLang === 'it' ? 'TUTTI I MODELLI' : 'ALL MODELS';
   }
 
   // Filter search
@@ -110,41 +111,45 @@ function renderProducts() {
   }
 
   if (filtered.length === 0) {
-    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--wood-text-muted);">
-      <i class="fa-solid fa-magnifying-glass" style="font-size: 2.5rem; color: var(--wood-border); margin-bottom: 1rem;"></i>
-      <p style="font-size: 1.1rem;">Nessun modello trovato per i criteri selezionati.</p>
-    </div>`;
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--mg-text-muted);">
+        <i class="fa-solid fa-magnifying-glass" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+        <p style="font-size: 1.1rem;">Nessun modello trovato.</p>
+      </div>
+    `;
     return;
   }
 
   grid.innerHTML = filtered.map(p => {
     const title = p.title[currentLang] || p.title.it;
     const series = p.categories.find(c => c.parentId !== 0)?.name[currentLang] || p.categories[0]?.name[currentLang] || 'Handcrafted';
-    const imgUrl = p.thumbnail ? `/uploads/${p.thumbnail}` : '/uploads/placeholder.jpg';
+    const imgUrl = p.thumbnail ? `/uploads/${p.thumbnail}` : '/uploads/logo-apinstrument.png';
     
-    // Key specs pills
+    // Top specs tags
     const specsHtml = Object.entries(p.specs || {})
       .slice(0, 3)
-      .map(([k, v]) => `<span class="spec-pill">${k}: <strong>${v}</strong></span>`)
+      .map(([k, v]) => `<span class="mg-spec-tag">${k}: <strong>${v}</strong></span>`)
       .join('');
 
     return `
-      <article class="product-card" onclick="openProductModal(${p.id})">
-        <div class="product-img-box">
-          <span class="product-badge-sku">${p.sku || 'AP'}</span>
-          <img src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.src='/uploads/placeholder.jpg'">
+      <article class="mg-card" onclick="openProductModal(${p.id})">
+        <div class="mg-img-holder">
+          <span class="mg-badge-sku">${p.sku || 'AP'}</span>
+          <img src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.src='/uploads/logo-apinstrument-home.png'">
+          <div class="mg-card-btn-overlay">Scopri di più</div>
         </div>
-        <div class="product-details">
-          <div class="product-series">${series}</div>
-          <h3 class="product-title">${title}</h3>
+
+        <div class="mg-card-body">
+          <div class="mg-card-series">${series}</div>
+          <h3 class="mg-card-title">${title}</h3>
           
-          <div class="product-specs-pills">
+          <div class="mg-specs-summary">
             ${specsHtml}
           </div>
 
-          <div class="product-bottom-row">
-            <div class="product-price">€ ${p.price.toFixed(2)} <span>/ paio</span></div>
-            <button class="btn-add-cart" onclick="event.stopPropagation(); addToCartDirect(${p.id})">
+          <div class="mg-card-footer">
+            <div class="mg-price">€ ${p.price.toFixed(2)} <span>/ paio</span></div>
+            <button class="mg-btn-add" onclick="event.stopPropagation(); addToCartDirect(${p.id})">
               <i class="fa-solid fa-cart-plus"></i> ${currentLang === 'it' ? 'Aggiungi' : 'Add'}
             </button>
           </div>
@@ -164,9 +169,9 @@ function filterByCategory(slug) {
   renderCategoriesTree();
   renderProducts();
 
-  // Highlight top nav if matching
-  document.querySelectorAll('.nav-link').forEach(el => {
-    el.classList.toggle('active', el.dataset.cat === slug || (slug === 'all' && el.dataset.nav === 'all'));
+  const navLinks = document.querySelectorAll('.mg-nav-link');
+  navLinks.forEach(el => {
+    el.classList.toggle('active', el.textContent.toLowerCase() === slug.toLowerCase() || (slug === 'all' && el.textContent.toLowerCase().includes('tutti')));
   });
 
   const catSection = document.getElementById('catalog');
@@ -179,16 +184,7 @@ function handleSearch() {
   renderProducts();
 }
 
-function setupNavLinks() {
-  document.querySelectorAll('[data-cat]').forEach(el => {
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      filterByCategory(el.dataset.cat);
-    });
-  });
-}
-
-// 4. Modal Product Details
+// 4. Modal Details
 function openProductModal(id) {
   const product = catalogData.products.find(p => p.id === id);
   if (!product) return;
@@ -205,31 +201,31 @@ function openProductModal(id) {
   document.getElementById('modal-series').textContent = series;
 
   // Description
-  const desc = product.excerpt[currentLang] || product.excerpt.it || 'Bacchetta artigianale di altissima precisione sonora.';
+  const desc = product.excerpt[currentLang] || product.excerpt.it || 'Bacchetta artigianale di altissima precisione acustica.';
   document.getElementById('modal-desc').innerHTML = desc.replace(/\\r\\n/g, '<br>');
 
-  // Main Image
-  const imgUrl = product.thumbnail ? `/uploads/${product.thumbnail}` : '/uploads/placeholder.jpg';
+  // Image
+  const imgUrl = product.thumbnail ? `/uploads/${product.thumbnail}` : '/uploads/logo-apinstrument.png';
   document.getElementById('modal-img').src = imgUrl;
 
-  // Gallery Thumbs
+  // Gallery
   const thumbsContainer = document.getElementById('modal-gallery-thumbs');
   if (product.gallery && product.gallery.length > 0) {
     thumbsContainer.innerHTML = product.gallery.map(g => `
-      <img src="/uploads/${g}" style="width: 50px; height: 50px; object-fit: contain; background: #fff; border: 1px solid var(--wood-border); border-radius: 4px; cursor: pointer;" onclick="document.getElementById('modal-img').src='/uploads/${g}'">
+      <img src="/uploads/${g}" style="width: 48px; height: 48px; object-fit: contain; background: #fff; border: 1px solid var(--mg-border-light); border-radius: 4px; cursor: pointer;" onclick="document.getElementById('modal-img').src='/uploads/${g}'">
     `).join('');
   } else {
     thumbsContainer.innerHTML = '';
   }
 
-  // Specs
+  // Technical Specs
   const specsContainer = document.getElementById('modal-specs');
   if (product.specs && Object.keys(product.specs).length > 0) {
     specsContainer.innerHTML = Object.entries(product.specs).map(([k, v]) => `
-      <span class="spec-pill" style="font-size: 0.85rem; padding: 4px 10px;">${k.toUpperCase()}: <strong>${v}</strong></span>
+      <span class="mg-spec-tag" style="font-size: 0.8rem; padding: 4px 8px;">${k.toUpperCase()}: <strong>${v}</strong></span>
     `).join('');
   } else {
-    specsContainer.innerHTML = '<span style="color: var(--wood-text-muted); font-size: 0.85rem;">Standard bilanciato</span>';
+    specsContainer.innerHTML = '<span style="color: var(--mg-text-muted); font-size: 0.8rem;">Standard calibrato</span>';
   }
 
   document.getElementById('modal-qty').value = 1;
@@ -249,7 +245,7 @@ function closeCraftModal() {
 }
 
 function closeModalOnBg(event) {
-  if (event.target.classList.contains('modal-overlay')) {
+  if (event.target.classList.contains('mg-modal-bg')) {
     event.target.style.display = 'none';
   }
 }
@@ -332,8 +328,8 @@ function renderCart() {
 
   if (cart.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; color: var(--wood-text-muted); margin-top: 3rem;">
-        <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; color: var(--wood-border); margin-bottom: 1rem;"></i>
+      <div style="text-align: center; color: var(--mg-text-muted); margin-top: 3rem;">
+        <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; margin-bottom: 1rem;"></i>
         <p>Il tuo carrello è vuoto</p>
       </div>
     `;
@@ -346,20 +342,20 @@ function renderCart() {
   let subtotal = 0;
   container.innerHTML = cart.map(item => {
     subtotal += item.price * item.qty;
-    const imgUrl = item.thumbnail ? `/uploads/${item.thumbnail}` : '/uploads/placeholder.jpg';
+    const imgUrl = item.thumbnail ? `/uploads/${item.thumbnail}` : '/uploads/logo-apinstrument.png';
     return `
-      <div class="cart-item">
-        <img src="${imgUrl}" class="cart-item-img" alt="${item.title}">
+      <div style="display: flex; gap: 12px; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--mg-border);">
+        <img src="${imgUrl}" style="width: 60px; height: 60px; background: #fff; border-radius: 4px; object-fit: contain; padding: 2px;">
         <div style="flex: 1;">
-          <h4 style="font-size: 1rem; color: var(--wood-text-dark); margin-bottom: 4px;">${item.title}</h4>
-          <span style="font-size: 0.75rem; color: var(--wood-text-muted); display: block; margin-bottom: 6px;">SKU: ${item.sku || 'AP'}</span>
+          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: #fff; margin-bottom: 2px;">${item.title}</h4>
+          <span style="font-size: 0.72rem; color: var(--mg-text-muted); display: block; margin-bottom: 6px;">SKU: ${item.sku || 'AP'}</span>
           <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button onclick="updateCartQty(${item.id}, -1)" style="width: 24px; height: 24px; border: 1px solid var(--wood-border); background: var(--wood-cream); border-radius: 4px; cursor: pointer;">-</button>
-              <span style="font-weight: 600; font-size: 0.9rem;">${item.qty}</span>
-              <button onclick="updateCartQty(${item.id}, 1)" style="width: 24px; height: 24px; border: 1px solid var(--wood-border); background: var(--wood-cream); border-radius: 4px; cursor: pointer;">+</button>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <button onclick="updateCartQty(${item.id}, -1)" style="width: 22px; height: 22px; border: 1px solid var(--mg-border-light); background: var(--mg-card-inner); color: #fff; border-radius: 3px; cursor: pointer;">-</button>
+              <span style="font-weight: 700; font-size: 0.85rem;">${item.qty}</span>
+              <button onclick="updateCartQty(${item.id}, 1)" style="width: 22px; height: 22px; border: 1px solid var(--mg-border-light); background: var(--mg-card-inner); color: #fff; border-radius: 3px; cursor: pointer;">+</button>
             </div>
-            <strong style="color: var(--wood-primary); font-size: 1rem;">€ ${(item.price * item.qty).toFixed(2)}</strong>
+            <strong style="color: var(--mg-accent); font-family: var(--mg-font-title); font-size: 1.15rem;">€ ${(item.price * item.qty).toFixed(2)}</strong>
           </div>
         </div>
       </div>
@@ -374,7 +370,7 @@ function renderCart() {
   document.getElementById('cart-total').textContent = `€ ${total.toFixed(2)}`;
 }
 
-// 6. Checkout Handlers
+// 6. Checkout
 function showCheckoutView() {
   document.getElementById('cart-items').style.display = 'none';
   document.getElementById('cart-footer').style.display = 'none';
@@ -441,39 +437,30 @@ async function processPayment(method) {
       saveCart();
       updateCartBadge();
       toggleCart();
-      alert(`🎉 Ordine #${res.orderId} creato con successo!\nMetodo di pagamento: ${method === 'paypal' ? 'PayPal / Carta di Credito' : 'Bonifico Bancario'}\nAbbiamo inviato un'email di riepilogo a ${customer.email}.`);
+      alert(`🎉 Ordine #${res.orderId} registrato con successo!\nMetodo: ${method === 'paypal' ? 'PayPal / Carta' : 'Bonifico Bancario'}\nEmail inviata a ${customer.email}.`);
       hideCheckoutView();
     } else {
-      alert('Errore creazione ordine: ' + res.error);
+      alert('Errore ordine: ' + res.error);
     }
   } catch (err) {
     alert('Errore di comunicazione con il server.');
   }
 }
 
-// 7. Language Switcher (qTranslate replacement)
+// 7. Lang Switcher
 function setLanguage(lang) {
   currentLang = lang;
   document.getElementById('btn-it').classList.toggle('active', lang === 'it');
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
-  // Translations dictionary
   if (lang === 'en') {
-    document.getElementById('top-msg').textContent = 'Handcrafted Professional Mallets 100% Made in Italy • Worldwide Shipping';
-    document.getElementById('hero-badge-txt').textContent = 'Selected Wood & Fine Wool';
-    document.getElementById('hero-title').textContent = 'The Acoustic Art of Handcrafted Mallets';
-    document.getElementById('hero-sub').textContent = 'Handcrafted using noble Maple, Olive, Rosewood, and Natural Rattan. Perfect balance of weight, flexibility, and tone projection for marimba, vibraphone, and percussions.';
-    document.getElementById('btn-explore').textContent = 'Explore Catalog';
-    document.getElementById('btn-story').textContent = 'Our Philosophy';
-    document.getElementById('txt-categories').textContent = 'Categories';
+    document.getElementById('top-msg').textContent = 'Handcrafted Professional Mallets Made in Italy • Worldwide Shipping';
+    document.getElementById('hero-title').innerHTML = 'PERCUSSION MALLETS <span id="hero-title-accent">HANDCRAFTED</span>';
+    document.getElementById('hero-desc').textContent = 'Handcrafted mallets with selected woods (Maple, Olive, Rosewood) and high-tenacity wool for optimal sonic projection.';
   } else {
-    document.getElementById('top-msg').textContent = 'Bacchette Professionali Artigianali 100% Made in Italy • Spedizioni in Tutto il Mondo';
-    document.getElementById('hero-badge-txt').textContent = 'Legno Selezionato & Lana Pregiata';
-    document.getElementById('hero-title').textContent = "L'Arte Sonora delle Bacchette Artigianali";
-    document.getElementById('hero-sub').textContent = 'Create a mano con legni nobili di Acero, Ulivo, Palissandro e Rattan naturale. Il perfetto bilanciamento tra peso, flessibilità e proiezione timbrica per marimba, vibrafono e percussioni.';
-    document.getElementById('btn-explore').textContent = 'Esplora il Catalogo';
-    document.getElementById('btn-story').textContent = 'La Nostra Filosofia';
-    document.getElementById('txt-categories').textContent = 'Categorie';
+    document.getElementById('top-msg').textContent = 'Bacchette Artigianali Made in Italy • Spedizioni Internazionali';
+    document.getElementById('hero-title').innerHTML = 'BACCHETTE PERCUSSIONE <span id="hero-title-accent">HANDCRAFTED</span>';
+    document.getElementById('hero-desc').textContent = 'Bacchette create e calibrate a mano con legni selezionati (Acero, Ulivo, Palissandro) e filati di lana ad alta tenacità per offrire una risposta sonora ideale a musicisti e percussionisti di ogni livello.';
   }
 
   renderCategoriesTree();
@@ -481,6 +468,6 @@ function setLanguage(lang) {
 }
 
 function toggleMobileNav() {
-  const nav = document.getElementById('nav-links');
+  const nav = document.getElementById('mg-nav-menu');
   nav.classList.toggle('show');
 }

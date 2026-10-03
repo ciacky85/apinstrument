@@ -9,32 +9,78 @@ const PORT = process.env.PORT || 9559;
 app.use(cors());
 app.use(express.json());
 
-// Serve static assets and product uploads
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Database loading
+// Path references
 const dataFilePath = path.join(__dirname, 'data', 'apinstrument.json');
 const ordersFilePath = path.join(__dirname, 'data', 'orders_history.json');
 const liveOrdersFilePath = path.join(__dirname, 'data', 'live_orders.json');
+const bundledUploadsDir = path.join(__dirname, 'public', 'uploads');
+const externalUploadsDir = '/srv/docker_conf/configs/apinstrument/uploads';
+
+// In-memory catalog loaded from bundled file at boot
+let memoryCatalog = { categories: [], products: [], pages: [] };
+
+function loadInitialCatalog() {
+  try {
+    if (fs.existsSync(dataFilePath)) {
+      memoryCatalog = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+      console.log(`Loaded ${memoryCatalog.products.length} products and ${memoryCatalog.categories.length} categories.`);
+    }
+  } catch (e) {
+    console.error('Error loading dataFilePath:', e);
+  }
+}
+
+loadInitialCatalog();
 
 function getCatalog() {
+  // If external mapped file exists and has content, use it, else memoryCatalog
   if (fs.existsSync(dataFilePath)) {
-    return JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+    try {
+      const data = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+      if (data && data.products && data.products.length > 0) {
+        return data;
+      }
+    } catch (e) {}
   }
-  return { categories: [], products: [], pages: [] };
+  return memoryCatalog;
 }
 
 function getLiveOrders() {
   if (fs.existsSync(liveOrdersFilePath)) {
-    return JSON.parse(fs.readFileSync(liveOrdersFilePath, 'utf8'));
+    try {
+      return JSON.parse(fs.readFileSync(liveOrdersFilePath, 'utf8'));
+    } catch (e) {}
   }
   return [];
 }
 
 function saveLiveOrders(orders) {
-  fs.writeFileSync(liveOrdersFilePath, JSON.stringify(orders, null, 2));
+  try {
+    fs.mkdirSync(path.dirname(liveOrdersFilePath), { recursive: true });
+    fs.writeFileSync(liveOrdersFilePath, JSON.stringify(orders, null, 2));
+  } catch (e) {
+    console.error('Error saving orders:', e);
+  }
 }
+
+// Media fallback handler: if external mount is empty or file not found there, serve from bundled public/uploads!
+app.use('/uploads', (req, res, next) => {
+  const reqPath = decodeURIComponent(req.path);
+  // 1. Check external mount
+  const externalFile = path.join(externalUploadsDir, reqPath);
+  if (fs.existsSync(externalFile) && fs.statSync(externalFile).isFile()) {
+    return res.sendFile(externalFile);
+  }
+  // 2. Check bundled uploads inside container
+  const bundledFile = path.join(bundledUploadsDir, reqPath);
+  if (fs.existsSync(bundledFile) && fs.statSync(bundledFile).isFile()) {
+    return res.sendFile(bundledFile);
+  }
+  next();
+});
+
+// Serve other static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // API Routes
 
@@ -76,7 +122,7 @@ app.get('/api/products', (req, res) => {
   });
 });
 
-// 3. Single Product by Slug or ID
+// 3. Single Product
 app.get('/api/products/:identifier', (req, res) => {
   const catalog = getCatalog();
   const idOrSlug = req.params.identifier;
@@ -86,7 +132,6 @@ app.get('/api/products/:identifier', (req, res) => {
     return res.status(404).json({ success: false, error: 'Product not found' });
   }
 
-  // Related products in same category
   const catIds = product.categories.map(c => c.id);
   const related = catalog.products
     .filter(p => p.id !== product.id && p.categories.some(c => catIds.includes(c.id)))
@@ -99,14 +144,9 @@ app.get('/api/products/:identifier', (req, res) => {
   });
 });
 
-// 4. Shipping calculation rules (migrated from WooCommerce advanced shipping)
+// 4. Shipping Calculation
 app.post('/api/shipping/calculate', (req, res) => {
-  const { country, itemsCount, totalWeight } = req.body;
-  
-  // Standard logic:
-  // Italy: 9.00 EUR (Free above 150 EUR)
-  // EU: 16.00 EUR
-  // Extra EU: 25.00 EUR
+  const { country } = req.body;
   let rate = 9.00;
   let zoneName = 'Italia';
 
@@ -128,15 +168,9 @@ app.post('/api/shipping/calculate', (req, res) => {
   });
 });
 
-// 5. Checkout & Order Creation
+// 5. Orders Creation
 app.post('/api/orders/create', (req, res) => {
-  const {
-    customer,
-    items,
-    shipping,
-    paymentMethod,
-    totals
-  } = req.body;
+  const { customer, items, shipping, paymentMethod, totals } = req.body;
 
   if (!customer || !items || !items.length) {
     return res.status(400).json({ success: false, error: 'Dati carrello o cliente non validi' });
@@ -180,35 +214,6 @@ app.post('/api/orders/create', (req, res) => {
     status: newOrder.status,
     message: 'Ordine registrato con successo'
   });
-});
-
-// 6. PayPal Client Configuration
-app.get('/api/payment/paypal-config', (req, res) => {
-  res.json({
-    success: true,
-    clientId: process.env.PAYPAL_CLIENT_ID || 'sb', // sandbox default or custom
-    currency: 'EUR'
-  });
-});
-
-// 7. Pages content (About, Craftsmanship, Contact)
-app.get('/api/pages/:slug', (req, res) => {
-  const catalog = getCatalog();
-  const page = catalog.pages.find(p => p.slug === req.params.slug);
-  if (!page) {
-    return res.status(404).json({ success: false, error: 'Page not found' });
-  }
-  res.json({ success: true, data: page });
-});
-
-// 8. Order lookup by ID
-app.get('/api/orders/:orderId', (req, res) => {
-  const liveOrders = getLiveOrders();
-  const order = liveOrders.find(o => o.orderId === parseInt(req.params.orderId));
-  if (order) {
-    return res.json({ success: true, order });
-  }
-  res.status(404).json({ success: false, error: 'Order not found' });
 });
 
 // SPA Fallback
