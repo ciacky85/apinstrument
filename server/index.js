@@ -46,28 +46,35 @@ function copyDirRecursive(src, dest) {
 }
 
 // 1. Initial Sync & Data Loading:
-// If data directory was shadowed by an empty Docker mount, restore from master_seed
+// If external mapped directory (/srv/docker_conf/configs/apinstrument) was empty, auto-populate from master_seed
 function initializeData() {
-  // Restore apinstrument.json if missing or empty
-  if (!fs.existsSync(dataFilePath) || fs.statSync(dataFilePath).size < 100) {
-    if (fs.existsSync(masterSeedData)) {
-      console.log('Restoring catalog data from master_seed...');
-      fs.copyFileSync(masterSeedData, dataFilePath);
+  try {
+    const dataExists = fs.existsSync(dataFilePath);
+    const dataSize = dataExists ? fs.statSync(dataFilePath).size : 0;
+    if (!dataExists || dataSize < 100) {
+      if (fs.existsSync(masterSeedData)) {
+        console.log('[Auto-Init] Populating external data with apinstrument.json from master_seed...');
+        fs.copyFileSync(masterSeedData, dataFilePath);
+      }
     }
-  }
 
-  // Restore orders_history.json if missing
-  if (!fs.existsSync(ordersFilePath) || fs.statSync(ordersFilePath).size < 10) {
-    if (fs.existsSync(masterSeedOrders)) {
-      fs.copyFileSync(masterSeedOrders, ordersFilePath);
+    const ordersExists = fs.existsSync(ordersFilePath);
+    const ordersSize = ordersExists ? fs.statSync(ordersFilePath).size : 0;
+    if (!ordersExists || ordersSize < 10) {
+      if (fs.existsSync(masterSeedOrders)) {
+        console.log('[Auto-Init] Populating external data with orders_history.json...');
+        fs.copyFileSync(masterSeedOrders, ordersFilePath);
+      }
     }
-  }
 
-  // Restore uploads if empty
-  const currentUploads = fs.readdirSync(uploadsDir);
-  if (currentUploads.length <= 1) {
-    console.log('Populating uploads from master_seed...');
-    copyDirRecursive(masterSeedUploads, uploadsDir);
+    const currentUploads = fs.existsSync(uploadsDir) ? fs.readdirSync(uploadsDir) : [];
+    if (currentUploads.length <= 1 && fs.existsSync(masterSeedUploads)) {
+      console.log('[Auto-Init] Populating external uploads folder with 271 original images from master_seed...');
+      copyDirRecursive(masterSeedUploads, uploadsDir);
+      console.log('[Auto-Init] Finished populating external uploads.');
+    }
+  } catch (err) {
+    console.error('[Auto-Init Warning]:', err.message);
   }
 }
 
