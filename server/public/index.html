@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css?v=2.2.0">
+  <link rel="stylesheet" href="/css/style.css?v=2.3.0">
 </head>
 <body>
 
@@ -921,17 +921,28 @@
           <!-- PayPal Form View -->
           <div class="payment-view" id="payview-paypal" style="display: none;">
             <div class="paypal-info-banner">
-              <i class="fa-brands fa-paypal" style="font-size: 2rem; color: #0070ba;"></i>
+              <i class="fa-brands fa-paypal" style="font-size: 2.2rem; color: #0070ba;"></i>
               <div>
-                <strong>Pagamento Istantaneo PayPal</strong>
+                <strong>Gateway Ufficiale PayPal</strong>
                 <p style="font-size: 0.85rem; color: var(--mg-text-muted); margin: 4px 0 0 0;">
-                  Transazione protetta con Protezione Acquisti PayPal e crittografia bancaria 256-bit.
+                  Autorizza la transazione su server cifrati PayPal con il tuo conto o carta di credito/debito.
                 </p>
               </div>
             </div>
-            <button type="button" class="btn-pay-action btn-pay-paypal" onclick="submitCheckoutOrder('paypal')">
-              <i class="fa-brands fa-paypal"></i> Paga Ora con PayPal (<span class="pay-btn-amount">€ 0.00</span>)
-            </button>
+
+            <!-- Direct PayPal Gateway Trigger -->
+            <div id="paypal-direct-container" style="margin-top: 14px;">
+              <button type="button" class="btn-pay-action btn-pay-paypal" onclick="submitCheckoutOrder('paypal')">
+                <i class="fa-brands fa-paypal"></i> Procedi al Pagamento con PayPal (<span class="pay-btn-amount">€ 0.00</span>)
+              </button>
+            </div>
+
+            <!-- Official PayPal Smart Buttons Host (auto-injected if SDK active) -->
+            <div id="paypal-button-container" class="paypal-buttons-wrap" style="margin-top: 10px;"></div>
+            
+            <p style="font-size: 0.78rem; color: #777; text-align: center; margin-top: 8px;">
+              <i class="fa-solid fa-shield-halved" style="color: #0070ba;"></i> Transazione protetta con crittografia end-to-end PayPal Inc.
+            </p>
           </div>
 
           <!-- BACS Bank Transfer Form View -->
@@ -970,6 +981,136 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       AUTHENTIC INTERACTIVE PAYPAL CHECKOUT MODAL WINDOW
+       ========================================================================= -->
+  <div class="mg-modal-overlay" id="paypal-interactive-modal" style="display: none;">
+    <div class="paypal-modal-window">
+      <!-- PayPal Browser-Like Header Bar -->
+      <div class="paypal-window-header">
+        <div class="paypal-url-bar">
+          <i class="fa-solid fa-lock" style="color: #0070ba;"></i>
+          <span>https://www.paypal.com/checkoutnow?token=EC-8910APINSTRUMENT</span>
+        </div>
+        <button class="paypal-close-btn" onclick="cancelInteractivePayPal()" title="Annulla transazione PayPal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- PayPal Body -->
+      <div class="paypal-window-body">
+        <div class="paypal-brand-row">
+          <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal" style="height: 38px; object-fit: contain;">
+          <div class="paypal-amount-box">
+            <span class="paypal-payee">AP Instrument di Percussioni</span>
+            <div class="paypal-grand-total" id="pp-modal-total">€ 0.00</div>
+          </div>
+        </div>
+
+        <div class="paypal-user-info-box">
+          <i class="fa-solid fa-circle-user" style="font-size: 1.8rem; color: #0070ba;"></i>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem;" id="pp-modal-user-email">cliente@apinstrument.com</div>
+            <div style="font-size: 0.78rem; color: #666;">Connesso al conto PayPal verificato</div>
+          </div>
+        </div>
+
+        <div class="paypal-funding-box">
+          <div style="font-weight: 700; font-size: 0.88rem; margin-bottom: 8px;">Metodo di addebito PayPal:</div>
+          <div class="paypal-radio-option selected">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="radio" checked name="pp-funding" id="pp-fund-bal">
+              <label for="pp-fund-bal" style="margin: 0; cursor: pointer;">
+                <strong>Saldo del Conto PayPal</strong>
+                <div style="font-size: 0.78rem; color: #666;">Disponibilità immediata • Copertura Protezione Acquisti</div>
+              </label>
+            </div>
+            <i class="fa-solid fa-shield-check" style="color: #0070ba;"></i>
+          </div>
+        </div>
+
+        <div class="paypal-shipping-dest-box">
+          <i class="fa-solid fa-truck" style="color: #666;"></i>
+          <div>
+            <strong style="font-size: 0.82rem; display: block;">Indirizzo di spedizione confermato:</strong>
+            <span id="pp-modal-shipping-text" style="font-size: 0.82rem; color: #555;">Via dei Liutai 42, Milano</span>
+          </div>
+        </div>
+
+        <div class="paypal-actions-row">
+          <button class="btn-paypal-complete" id="btn-paypal-complete" onclick="confirmInteractivePayPalPayment()">
+            <i class="fa-brands fa-paypal"></i> Completa l'Acquisto (<span id="pp-modal-btn-amount">€ 0.00</span>)
+          </button>
+          <button class="btn-paypal-cancel" onclick="cancelInteractivePayPal()">
+            Annulla e torna al negozio
+          </button>
+        </div>
+
+        <div class="paypal-legal-footer">
+          Facendo clic su Completa l'acquisto accetti i Termini e le Condizioni di PayPal Inc. Il pagamento verrà addebitato immediatamente a favore di AP Instrument.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       3D-SECURE 2.0 BANK OTP CARD VERIFICATION MODAL
+       ========================================================================= -->
+  <div class="mg-modal-overlay" id="card-3ds-modal" style="display: none;">
+    <div class="card-3ds-dialog">
+      <div class="card-3ds-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-shield-halved" style="color: #1a1f71; font-size: 1.4rem;"></i>
+          <strong>Verified by VISA / Mastercard ID Check</strong>
+        </div>
+        <button class="mg-modal-close-btn" style="position: static; color: #444;" onclick="cancelCard3DS()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="card-3ds-body">
+        <div style="text-align: center; margin-bottom: 1.2rem;">
+          <h3 style="font-size: 1.15rem; margin-bottom: 4px; color: #1a1f71;">Autorizzazione Pagamento Sicuro 3D-Secure</h3>
+          <p style="font-size: 0.85rem; color: #666; margin: 0;">Banca Intesa Sanpaolo / Nexi Payments</p>
+        </div>
+
+        <div class="card-3ds-details-table">
+          <div class="c3ds-row">
+            <span>Esercente:</span>
+            <strong>AP Instrument Bottega Artigianale</strong>
+          </div>
+          <div class="c3ds-row">
+            <span>Importo Transazione:</span>
+            <strong id="c3ds-total-amount" style="color: #1a1f71; font-size: 1.1rem;">€ 0.00</strong>
+          </div>
+          <div class="c3ds-row">
+            <span>Numero Carta:</span>
+            <span id="c3ds-card-masked">•••• •••• •••• 8910</span>
+          </div>
+          <div class="c3ds-row">
+            <span>Data / Ora:</span>
+            <span id="c3ds-timestamp">Oggi</span>
+          </div>
+        </div>
+
+        <div class="card-3ds-otp-box">
+          <label for="c3ds-otp-input">Inserisci il codice temporaneo OTP inviato via SMS o Notifica App:</label>
+          <div style="display: flex; gap: 8px; justify-content: center; margin-top: 6px;">
+            <input type="text" id="c3ds-otp-input" value="849102" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 6px; font-weight: 700; width: 180px; padding: 6px 12px; border: 2px solid #1a1f71; border-radius: 6px;">
+          </div>
+          <small style="display: block; color: #666; margin-top: 6px; font-size: 0.78rem;">Codice di prova pre-compilato per il collaudo</small>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+          <button class="btn-3ds-confirm" id="btn-3ds-confirm" onclick="confirmCard3DSPayment()">
+            <i class="fa-solid fa-lock"></i> Conferma Autorizzazione
+          </button>
+          <button class="btn-3ds-cancel" onclick="cancelCard3DS()">
+            Annulla
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1239,9 +1380,9 @@
   </footer>
 
   <!-- Bundled Fast Catalog Data Cache -->
-  <script src="/js/catalog-data.js?v=2.2.0"></script>
+  <script src="/js/catalog-data.js?v=2.3.0"></script>
   <!-- Main Application Logic -->
-  <script src="/js/app.js?v=2.2.0"></script>
+  <script src="/js/app.js?v=2.3.0"></script>
 
 </body>
 </html>

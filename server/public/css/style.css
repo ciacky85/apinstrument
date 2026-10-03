@@ -3121,12 +3121,18 @@ button, input, select {
 }
 
 .btn-pay-paypal {
-  background: #0070ba;
-  color: #fff;
+  background: #ffc439;
+  color: #111;
+  font-weight: 700;
+  border: 1px solid #e0aa2b;
+  box-shadow: 0 4px 14px rgba(255, 196, 57, 0.25);
 }
 
 .btn-pay-paypal:hover {
-  background: #005ea6;
+  background: #f4b628;
+  color: #000;
+  box-shadow: 0 6px 18px rgba(255, 196, 57, 0.35);
+  transform: translateY(-1px);
 }
 
 .btn-pay-bacs {
@@ -3441,5 +3447,270 @@ button, input, select {
   font-size: 3rem;
   color: var(--mg-accent-gold);
 }
+
+/* ==========================================================================
+   AUTHENTIC PAYPAL MODAL WINDOW STYLES
+   ========================================================================== */
+.paypal-modal-window {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+  animation: slideUpPP 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpPP {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.paypal-window-header {
+  background: #f7f9fa;
+  border-bottom: 1px solid #e1e7eb;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.paypal-url-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #555;
+  background: #ffffff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #d4dde5;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paypal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  color: #777;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.paypal-close-btn:hover {
+  color: #111;
+  background: #eaeef2;
+}
+
+.paypal-window-body {
+  padding: 24px;
+}
+
+.paypal-brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 16px;
+}
+
+.paypal-amount-box {
+  text-align: right;
+}
+
+.paypal-payee {
+  font-size: 0.8rem;
+  color: #777;
+  display: block;
+}
+
+.paypal-grand-total {
+  font-family: var(--mg-font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111;
+}
+
+.paypal-user-info-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.paypal-funding-box {
+  margin-bottom: 16px;
+}
+
+.paypal-radio-option {
+  border: 2px solid #0070ba;
+  background: #f0f7fd;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paypal-shipping-dest-box {
+  background: #fdfbf7;
+  border: 1px solid #ebd9b8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.paypal-actions-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-paypal-complete {
+  width: 100%;
+  background: #0070ba;
+  color: #ffffff;
+  border: none;
+  font-family: var(--mg-font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px;
+  border-radius: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 112, 186, 0.3);
+  transition: all 0.2s;
+}
+
+.btn-paypal-complete:hover {
+  background: #005ea6;
+  transform: translateY(-1px);
+}
+
+.btn-paypal-cancel {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 8px;
+  text-decoration: underline;
+}
+
+.btn-paypal-cancel:hover {
+  color: #111;
+}
+
+.paypal-legal-footer {
+  font-size: 0.72rem;
+  color: #888;
+  text-align: center;
+  line-height: 1.4;
+  margin-top: 14px;
+}
+
+/* ==========================================================================
+   3D-SECURE BANK MODAL STYLES
+   ========================================================================== */
+.card-3ds-dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+  overflow: hidden;
+  animation: slideUpPP 0.3s ease;
+}
+
+.card-3ds-header {
+  background: #f3f4f8;
+  border-bottom: 2px solid #1a1f71;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.card-3ds-body {
+  padding: 24px;
+}
+
+.card-3ds-details-table {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.c3ds-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid #eee;
+}
+
+.c3ds-row:last-child {
+  border-bottom: none;
+}
+
+.card-3ds-otp-box {
+  background: #fdfaf5;
+  border: 1px solid #e2d9cc;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+
+.btn-3ds-confirm {
+  flex: 2;
+  background: #1a1f71;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-family: var(--mg-font-heading);
+  font-weight: 700;
+  border-radius: var(--mg-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-3ds-confirm:hover {
+  background: #0f1349;
+}
+
+.btn-3ds-cancel {
+  flex: 1;
+  background: #f0ede6;
+  border: 1px solid #d4cfc5;
+  color: #333;
+  padding: 12px;
+  font-family: var(--mg-font-heading);
+  font-weight: 700;
+  border-radius: var(--mg-radius);
+  cursor: pointer;
+}
+
 
 

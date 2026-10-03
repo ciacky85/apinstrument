@@ -73,5 +73,44 @@
       "shipping": 9,
       "total": 72
     }
+  },
+  {
+    "orderId": "AP-10003",
+    "orderNumber": 10003,
+    "userId": null,
+    "createdAt": "2026-10-03T10:29:59.305Z",
+    "dateCreated": "2026-10-03T10:29:59.305Z",
+    "status": "In Lavorazione",
+    "paymentMethod": "carta",
+    "customer": {
+      "firstName": "Mario",
+      "lastName": "Rossi",
+      "email": "mario.rossi@example.com",
+      "phone": "+39 340 1234567",
+      "address": "Via Roma 10",
+      "city": "Milano",
+      "postcode": "20121",
+      "country": "IT",
+      "fiscalCode": "",
+      "notes": ""
+    },
+    "items": [
+      {
+        "id": 3613,
+        "title": "SERIE ST MARIMBA - ST1 SOFT",
+        "sku": "ST1",
+        "price": 31.5,
+        "thumbnail": "2024/06/ST1-01.jpg",
+        "qty": 3
+      }
+    ],
+    "subtotal": 94.5,
+    "shipping": 9,
+    "total": 103.5,
+    "totals": {
+      "subtotal": 94.5,
+      "shipping": 9,
+      "total": 103.5
+    }
   }
 ]

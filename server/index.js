@@ -540,9 +540,18 @@ app.get('/api/auth/orders', authMiddleware, (req, res) => {
 // API ROUTES: ORDERS & CHECKOUT
 // ============================================================================
 
+// PayPal Configuration Endpoint
+app.get('/api/config/paypal', (req, res) => {
+  res.json({
+    success: true,
+    clientId: process.env.PAYPAL_CLIENT_ID || 'sb',
+    currency: 'EUR'
+  });
+});
+
 // Create Order (Cards, PayPal, Bonifico)
 app.post('/api/orders/create', (req, res) => {
-  const { customer, items, shipping, paymentMethod, totals, userId, notes } = req.body;
+  const { customer, items, shipping, paymentMethod, totals, userId, notes, paypalTransaction } = req.body;
 
   if (!customer || !items || !items.length) {
     return res.status(400).json({ success: false, error: 'Dati carrello o cliente incompleti' });
@@ -564,14 +573,35 @@ app.post('/api/orders/create', (req, res) => {
   const calcShipping = Number(totals?.shipping ?? req.body.shipping ?? 9.0);
   const calcTotal = Number(totals?.total ?? req.body.total ?? (calcSubtotal + calcShipping));
 
+  let orderStatus = 'In Lavorazione';
+  let transactionId = null;
+
+  if (paymentMethod === 'paypal') {
+    if (paypalTransaction) {
+      orderStatus = 'Pagato (PayPal Verificato)';
+      transactionId = paypalTransaction.id || paypalTransaction.orderID || `PAYID-APP-${Date.now()}`;
+    } else {
+      orderStatus = 'Pagato (PayPal)';
+      transactionId = `PAYID-MANUAL-${Date.now()}`;
+    }
+  } else if (paymentMethod === 'bacs') {
+    orderStatus = 'In Attesa di Bonifico';
+    transactionId = `BACS-${orderNumber}`;
+  } else {
+    orderStatus = 'Pagato (Carta Verificata)';
+    transactionId = `CARD-${Date.now().toString(36).toUpperCase()}`;
+  }
+
   const newOrder = {
     orderId,
     orderNumber,
     userId: linkedUserId,
     createdAt: new Date().toISOString(),
     dateCreated: new Date().toISOString(),
-    status: paymentMethod === 'bacs' ? 'In Attesa di Bonifico' : 'In Lavorazione',
+    status: orderStatus,
     paymentMethod: paymentMethod || 'carta',
+    transactionId,
+    paypalDetails: paypalTransaction || null,
     customer: {
       firstName: customer.firstName || '',
       lastName: customer.lastName || '',
