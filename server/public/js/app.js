@@ -5,46 +5,62 @@ let cart = JSON.parse(localStorage.getItem('ap_cart') || '[]');
 let currentModalProduct = null;
 let currentShippingRate = 9.0;
 
+// Inline SVG Data-URI that CANNOT 404 or loop
+const FALLBACK_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect width='100%25' height='100%25' fill='%23f5f3ef'/%3E%3Cline x1='60' y1='240' x2='220' y2='80' stroke='%238c5835' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='220' cy='80' r='28' fill='%23c48243'/%3E%3Ctext x='150' y='270' font-family='sans-serif' font-size='12' font-weight='bold' fill='%235c3a21' text-anchor='middle'%3EAP INSTRUMENT%3C/text%3E%3C/svg%3E";
+
 document.addEventListener('DOMContentLoaded', () => {
+  // 1. Instant render if bundled catalog data is available
+  if (window.INITIAL_CATALOG && window.INITIAL_CATALOG.products && window.INITIAL_CATALOG.products.length > 0) {
+    catalogData = window.INITIAL_CATALOG;
+    renderCategoriesTree();
+    renderProducts();
+  }
+
+  // 2. Fetch live updates from API
   loadCatalog();
   updateCartBadge();
 });
 
-// 1. Load catalog from API
+// Load catalog from API
 async function loadCatalog() {
   try {
     const [resCats, resProds] = await Promise.all([
-      fetch('/api/categories').then(r => r.json()),
-      fetch('/api/products').then(r => r.json())
+      fetch('/api/categories').then(r => r.json()).catch(() => null),
+      fetch('/api/products').then(r => r.json()).catch(() => null)
     ]);
 
-    if (resCats.success && resProds.success) {
+    if (resCats && resCats.success && resProds && resProds.success) {
       catalogData.categories = resCats.data;
       catalogData.products = resProds.data;
       renderCategoriesTree();
       renderProducts();
     }
   } catch (err) {
-    console.error('Error loading catalog:', err);
-    document.getElementById('products-grid').innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #ff5555;">
-        <p>Errore di caricamento del catalogo. Assicurati che il server sia avviato.</p>
-      </div>
-    `;
+    console.warn('API sync warning:', err);
+    // If memory already had INITIAL_CATALOG, do nothing, it already rendered!
+    if (!catalogData.products || catalogData.products.length === 0) {
+      document.getElementById('products-grid').innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #777;">
+          <p>Caricamento catalogo in corso...</p>
+        </div>
+      `;
+    }
   }
 }
 
-// 2. Render sidebar categories (Right Column, MG Mallets exact style)
+// Render Categories in the Right Sidebar (Exact MG Mallets Structure)
 function renderCategoriesTree() {
   const container = document.getElementById('categories-tree-container');
-  if (!container) return;
+  if (!container || !catalogData.categories) return;
 
   const topCats = catalogData.categories.filter(c => c.parentId === 0 && c.count > 0);
   
   let html = `
-    <div class="mg-cat-header ${activeCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">
-      <span>TUTTI I PRODOTTI</span>
-      <span style="font-size: 0.8rem; color: var(--mg-text-muted);">${catalogData.products.length}</span>
+    <div class="mg-cat-section">
+      <div class="mg-cat-name ${activeCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">
+        <span>TUTTI I PRODOTTI</span>
+        <span class="mg-count-pill">${catalogData.products ? catalogData.products.length : 127}</span>
+      </div>
     </div>
   `;
 
@@ -53,34 +69,37 @@ function renderCategoriesTree() {
     const isCatActive = activeCategory === tc.slug;
 
     html += `
-      <div class="mg-cat-header ${isCatActive ? 'active' : ''}" onclick="filterByCategory('${tc.slug}')">
-        <span>${tc.name[currentLang] || tc.name.it}</span>
-        <span style="font-size: 0.8rem; color: var(--mg-text-muted);">${tc.count}</span>
-      </div>
+      <div class="mg-cat-section">
+        <div class="mg-cat-name ${isCatActive ? 'active' : ''}" onclick="filterByCategory('${tc.slug}')">
+          <span>${tc.name[currentLang] || tc.name.it}</span>
+          <span class="mg-count-pill">${tc.count}</span>
+        </div>
     `;
 
     if (subcats.length > 0) {
       for (const sc of subcats) {
         const isSubActive = activeCategory === sc.slug;
         html += `
-          <div class="mg-subcat-item ${isSubActive ? 'active' : ''}" onclick="filterByCategory('${sc.slug}')">
+          <div class="mg-subcat-row ${isSubActive ? 'active' : ''}" onclick="filterByCategory('${sc.slug}')">
             <span><span class="chevron">&gt;&gt;</span> ${sc.name[currentLang] || sc.name.it}</span>
-            <span style="font-size: 0.75rem; color: var(--mg-text-muted);">${sc.count}</span>
+            <span class="mg-count-pill">${sc.count}</span>
           </div>
         `;
       }
     }
+
+    html += `</div>`;
   }
 
   container.innerHTML = html;
 }
 
-// 3. Render Products Grid (MG Mallets Card Style)
+// Render Products Grid
 function renderProducts() {
   const grid = document.getElementById('products-grid');
   const countBadge = document.getElementById('products-count-badge');
   const titleElem = document.getElementById('active-category-title');
-  if (!grid) return;
+  if (!grid || !catalogData.products) return;
 
   let filtered = catalogData.products;
 
@@ -95,14 +114,14 @@ function renderProducts() {
     if (titleElem) titleElem.textContent = currentLang === 'it' ? 'TUTTI I MODELLI' : 'ALL MODELS';
   }
 
-  // Filter search
+  // Search filter
   const searchInput = document.getElementById('search-box');
   if (searchInput && searchInput.value.trim()) {
     const q = searchInput.value.toLowerCase().trim();
     filtered = filtered.filter(p => 
       (p.title[currentLang] && p.title[currentLang].toLowerCase().includes(q)) ||
       (p.sku && p.sku.toLowerCase().includes(q)) ||
-      (p.excerpt[currentLang] && p.excerpt[currentLang].toLowerCase().includes(q))
+      (p.excerpt && p.excerpt[currentLang] && p.excerpt[currentLang].toLowerCase().includes(q))
     );
   }
 
@@ -113,8 +132,8 @@ function renderProducts() {
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--mg-text-muted);">
-        <i class="fa-solid fa-magnifying-glass" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
-        <p style="font-size: 1.1rem;">Nessun modello trovato.</p>
+        <i class="fa-solid fa-magnifying-glass" style="font-size: 2.5rem; margin-bottom: 1rem; color: #ccc;"></i>
+        <p style="font-size: 1.1rem;">Nessun modello trovato per i criteri selezionati.</p>
       </div>
     `;
     return;
@@ -122,34 +141,34 @@ function renderProducts() {
 
   grid.innerHTML = filtered.map(p => {
     const title = p.title[currentLang] || p.title.it;
-    const series = p.categories.find(c => c.parentId !== 0)?.name[currentLang] || p.categories[0]?.name[currentLang] || 'Handcrafted';
-    const imgUrl = p.thumbnail ? `/uploads/${p.thumbnail}` : '/uploads/logo-apinstrument.png';
+    const series = p.categories.find(c => c.parentId !== 0)?.name[currentLang] || p.categories[0]?.name[currentLang] || 'Handcrafted Series';
+    const imgUrl = p.thumbnail ? `/uploads/${p.thumbnail}` : FALLBACK_SVG;
     
     // Top specs tags
     const specsHtml = Object.entries(p.specs || {})
       .slice(0, 3)
-      .map(([k, v]) => `<span class="mg-spec-tag">${k}: <strong>${v}</strong></span>`)
+      .map(([k, v]) => `<span class="mg-spec-pill">${k}: <strong>${v}</strong></span>`)
       .join('');
 
     return `
       <article class="mg-card" onclick="openProductModal(${p.id})">
-        <div class="mg-img-holder">
-          <span class="mg-badge-sku">${p.sku || 'AP'}</span>
-          <img src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.src='/uploads/logo-apinstrument-home.png'">
-          <div class="mg-card-btn-overlay">Scopri di più</div>
+        <div class="mg-card-img-wrap">
+          <span class="mg-sku-badge">${p.sku || 'AP'}</span>
+          <img src="${imgUrl}" alt="${title}" loading="lazy" class="mg-card-img" onerror="this.onerror=null; this.src='${FALLBACK_SVG}';">
+          <div class="mg-hover-btn">Scopri di più</div>
         </div>
 
-        <div class="mg-card-body">
+        <div class="mg-card-content">
           <div class="mg-card-series">${series}</div>
           <h3 class="mg-card-title">${title}</h3>
           
-          <div class="mg-specs-summary">
+          <div class="mg-card-specs">
             ${specsHtml}
           </div>
 
-          <div class="mg-card-footer">
-            <div class="mg-price">€ ${p.price.toFixed(2)} <span>/ paio</span></div>
-            <button class="mg-btn-add" onclick="event.stopPropagation(); addToCartDirect(${p.id})">
+          <div class="mg-card-bottom">
+            <div class="mg-card-price">€ ${p.price.toFixed(2)} <span>/ paio</span></div>
+            <button class="mg-card-add-btn" onclick="event.stopPropagation(); addToCartDirect(${p.id})">
               <i class="fa-solid fa-cart-plus"></i> ${currentLang === 'it' ? 'Aggiungi' : 'Add'}
             </button>
           </div>
@@ -169,8 +188,7 @@ function filterByCategory(slug) {
   renderCategoriesTree();
   renderProducts();
 
-  const navLinks = document.querySelectorAll('.mg-nav-link');
-  navLinks.forEach(el => {
+  document.querySelectorAll('.mg-nav-item').forEach(el => {
     el.classList.toggle('active', el.textContent.toLowerCase() === slug.toLowerCase() || (slug === 'all' && el.textContent.toLowerCase().includes('tutti')));
   });
 
@@ -184,7 +202,7 @@ function handleSearch() {
   renderProducts();
 }
 
-// 4. Modal Details
+// Modal Product Details
 function openProductModal(id) {
   const product = catalogData.products.find(p => p.id === id);
   if (!product) return;
@@ -201,31 +219,33 @@ function openProductModal(id) {
   document.getElementById('modal-series').textContent = series;
 
   // Description
-  const desc = product.excerpt[currentLang] || product.excerpt.it || 'Bacchetta artigianale di altissima precisione acustica.';
+  const desc = (product.excerpt && (product.excerpt[currentLang] || product.excerpt.it)) || 'Bacchetta artigianale di altissima precisione acustica e bilanciamento perfetto.';
   document.getElementById('modal-desc').innerHTML = desc.replace(/\\r\\n/g, '<br>');
 
-  // Image
-  const imgUrl = product.thumbnail ? `/uploads/${product.thumbnail}` : '/uploads/logo-apinstrument.png';
-  document.getElementById('modal-img').src = imgUrl;
+  // Main Image
+  const imgUrl = product.thumbnail ? `/uploads/${product.thumbnail}` : FALLBACK_SVG;
+  const modalImg = document.getElementById('modal-img');
+  modalImg.onerror = function() { this.onerror = null; this.src = FALLBACK_SVG; };
+  modalImg.src = imgUrl;
 
   // Gallery
   const thumbsContainer = document.getElementById('modal-gallery-thumbs');
   if (product.gallery && product.gallery.length > 0) {
     thumbsContainer.innerHTML = product.gallery.map(g => `
-      <img src="/uploads/${g}" style="width: 48px; height: 48px; object-fit: contain; background: #fff; border: 1px solid var(--mg-border-light); border-radius: 4px; cursor: pointer;" onclick="document.getElementById('modal-img').src='/uploads/${g}'">
+      <img src="/uploads/${g}" style="width: 46px; height: 46px; object-fit: contain; background: #fff; border: 1px solid var(--mg-card-border); border-radius: 4px; cursor: pointer; padding: 2px;" onerror="this.onerror=null; this.src='${FALLBACK_SVG}';" onclick="document.getElementById('modal-img').src='/uploads/${g}'">
     `).join('');
   } else {
     thumbsContainer.innerHTML = '';
   }
 
-  // Technical Specs
+  // Specifications
   const specsContainer = document.getElementById('modal-specs');
   if (product.specs && Object.keys(product.specs).length > 0) {
     specsContainer.innerHTML = Object.entries(product.specs).map(([k, v]) => `
-      <span class="mg-spec-tag" style="font-size: 0.8rem; padding: 4px 8px;">${k.toUpperCase()}: <strong>${v}</strong></span>
+      <span class="mg-spec-pill" style="font-size: 0.8rem; padding: 4px 8px;">${k.toUpperCase()}: <strong>${v}</strong></span>
     `).join('');
   } else {
-    specsContainer.innerHTML = '<span style="color: var(--mg-text-muted); font-size: 0.8rem;">Standard calibrato</span>';
+    specsContainer.innerHTML = '<span style="color: var(--mg-text-muted); font-size: 0.8rem;">Standard calibrato da concerto</span>';
   }
 
   document.getElementById('modal-qty').value = 1;
@@ -245,12 +265,12 @@ function closeCraftModal() {
 }
 
 function closeModalOnBg(event) {
-  if (event.target.classList.contains('mg-modal-bg')) {
+  if (event.target.classList.contains('mg-modal-overlay')) {
     event.target.style.display = 'none';
   }
 }
 
-// 5. Cart Management
+// Cart Drawer
 function toggleCart() {
   const drawer = document.getElementById('cart-drawer');
   const overlay = document.getElementById('cart-overlay');
@@ -329,7 +349,7 @@ function renderCart() {
   if (cart.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; color: var(--mg-text-muted); margin-top: 3rem;">
-        <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+        <i class="fa-solid fa-bag-shopping" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
         <p>Il tuo carrello è vuoto</p>
       </div>
     `;
@@ -342,20 +362,20 @@ function renderCart() {
   let subtotal = 0;
   container.innerHTML = cart.map(item => {
     subtotal += item.price * item.qty;
-    const imgUrl = item.thumbnail ? `/uploads/${item.thumbnail}` : '/uploads/logo-apinstrument.png';
+    const imgUrl = item.thumbnail ? `/uploads/${item.thumbnail}` : FALLBACK_SVG;
     return `
-      <div style="display: flex; gap: 12px; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--mg-border);">
-        <img src="${imgUrl}" style="width: 60px; height: 60px; background: #fff; border-radius: 4px; object-fit: contain; padding: 2px;">
+      <div style="display: flex; gap: 12px; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--mg-card-border);">
+        <img src="${imgUrl}" style="width: 55px; height: 55px; background: #fff; border-radius: 4px; object-fit: contain; padding: 2px; border: 1px solid #e0dcd4;" onerror="this.onerror=null; this.src='${FALLBACK_SVG}';">
         <div style="flex: 1;">
-          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: #fff; margin-bottom: 2px;">${item.title}</h4>
+          <h4 style="font-family: var(--mg-font-title); font-size: 1.05rem; color: var(--mg-text-main); margin-bottom: 2px;">${item.title}</h4>
           <span style="font-size: 0.72rem; color: var(--mg-text-muted); display: block; margin-bottom: 6px;">SKU: ${item.sku || 'AP'}</span>
           <div style="display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 6px;">
-              <button onclick="updateCartQty(${item.id}, -1)" style="width: 22px; height: 22px; border: 1px solid var(--mg-border-light); background: var(--mg-card-inner); color: #fff; border-radius: 3px; cursor: pointer;">-</button>
+              <button onclick="updateCartQty(${item.id}, -1)" style="width: 22px; height: 22px; border: 1px solid var(--mg-card-border); background: #f0eee8; color: #333; border-radius: 3px; cursor: pointer;">-</button>
               <span style="font-weight: 700; font-size: 0.85rem;">${item.qty}</span>
-              <button onclick="updateCartQty(${item.id}, 1)" style="width: 22px; height: 22px; border: 1px solid var(--mg-border-light); background: var(--mg-card-inner); color: #fff; border-radius: 3px; cursor: pointer;">+</button>
+              <button onclick="updateCartQty(${item.id}, 1)" style="width: 22px; height: 22px; border: 1px solid var(--mg-card-border); background: #f0eee8; color: #333; border-radius: 3px; cursor: pointer;">+</button>
             </div>
-            <strong style="color: var(--mg-accent); font-family: var(--mg-font-title); font-size: 1.15rem;">€ ${(item.price * item.qty).toFixed(2)}</strong>
+            <strong style="color: var(--mg-wood-warm); font-family: var(--mg-font-title); font-size: 1.15rem;">€ ${(item.price * item.qty).toFixed(2)}</strong>
           </div>
         </div>
       </div>
@@ -370,7 +390,7 @@ function renderCart() {
   document.getElementById('cart-total').textContent = `€ ${total.toFixed(2)}`;
 }
 
-// 6. Checkout
+// Checkout Handlers
 function showCheckoutView() {
   document.getElementById('cart-items').style.display = 'none';
   document.getElementById('cart-footer').style.display = 'none';
@@ -437,30 +457,32 @@ async function processPayment(method) {
       saveCart();
       updateCartBadge();
       toggleCart();
-      alert(`🎉 Ordine #${res.orderId} registrato con successo!\nMetodo: ${method === 'paypal' ? 'PayPal / Carta' : 'Bonifico Bancario'}\nEmail inviata a ${customer.email}.`);
+      alert(`🎉 Ordine #${res.orderId} registrato con successo!\nMetodo: ${method === 'paypal' ? 'PayPal / Carte' : 'Bonifico Bancario'}\nConferma inviata a ${customer.email}.`);
       hideCheckoutView();
     } else {
-      alert('Errore ordine: ' + res.error);
+      alert('Errore: ' + res.error);
     }
   } catch (err) {
-    alert('Errore di comunicazione con il server.');
+    alert('Errore di connessione al server.');
   }
 }
 
-// 7. Lang Switcher
+// Multilingual Switcher
 function setLanguage(lang) {
   currentLang = lang;
   document.getElementById('btn-it').classList.toggle('active', lang === 'it');
   document.getElementById('btn-en').classList.toggle('active', lang === 'en');
 
   if (lang === 'en') {
-    document.getElementById('top-msg').textContent = 'Handcrafted Professional Mallets Made in Italy • Worldwide Shipping';
-    document.getElementById('hero-title').innerHTML = 'PERCUSSION MALLETS <span id="hero-title-accent">HANDCRAFTED</span>';
-    document.getElementById('hero-desc').textContent = 'Handcrafted mallets with selected woods (Maple, Olive, Rosewood) and high-tenacity wool for optimal sonic projection.';
+    document.getElementById('top-msg').textContent = 'Handcrafted Mallets Made in Italy • Worldwide Shipping';
+    document.getElementById('hero-title').innerHTML = 'PERCUSSION MALLETS <span>- AP INSTRUMENT</span>';
+    document.getElementById('hero-desc').textContent = 'Every mallet is meticulously engineered for optimal dynamic range and tone projection. Made with select Maple and Natural Rattan handles and hand-wound with premium wool.';
+    document.getElementById('txt-categories-heading').textContent = 'CATEGORIES & SERIES';
   } else {
-    document.getElementById('top-msg').textContent = 'Bacchette Artigianali Made in Italy • Spedizioni Internazionali';
-    document.getElementById('hero-title').innerHTML = 'BACCHETTE PERCUSSIONE <span id="hero-title-accent">HANDCRAFTED</span>';
-    document.getElementById('hero-desc').textContent = 'Bacchette create e calibrate a mano con legni selezionati (Acero, Ulivo, Palissandro) e filati di lana ad alta tenacità per offrire una risposta sonora ideale a musicisti e percussionisti di ogni livello.';
+    document.getElementById('top-msg').textContent = 'Bacchette Artigianali Made in Italy • Spedizioni in Tutto il Mondo';
+    document.getElementById('hero-title').innerHTML = 'BACCHETTE PERCUSSIONE <span>- AP INSTRUMENT</span>';
+    document.getElementById('hero-desc').textContent = 'Ogni bacchetta è studiata nei minimi particolari per ottenere la massima gamma dinamica ed espressiva. Il bilanciamento meticoloso favorisce la corretta proiezione sonora: tutti i modelli montano manici in Acero e Rattan naturale e avvolgimento artigianale in lana selezionata.';
+    document.getElementById('txt-categories-heading').textContent = 'CATEGORIE & SERIE';
   }
 
   renderCategoriesTree();

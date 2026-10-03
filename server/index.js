@@ -9,39 +9,92 @@ const PORT = process.env.PORT || 9559;
 app.use(cors());
 app.use(express.json());
 
-// Path references
-const dataFilePath = path.join(__dirname, 'data', 'apinstrument.json');
-const ordersFilePath = path.join(__dirname, 'data', 'orders_history.json');
-const liveOrdersFilePath = path.join(__dirname, 'data', 'live_orders.json');
-const bundledUploadsDir = path.join(__dirname, 'public', 'uploads');
-const externalUploadsDir = '/srv/docker_conf/configs/apinstrument/uploads';
+// Directories
+const masterSeedData = path.join(__dirname, '..', 'master_seed', 'data', 'apinstrument.json');
+const masterSeedOrders = path.join(__dirname, '..', 'master_seed', 'data', 'orders_history.json');
+const masterSeedUploads = path.join(__dirname, '..', 'master_seed', 'uploads');
 
-// In-memory catalog loaded from bundled file at boot
-let memoryCatalog = { categories: [], products: [], pages: [] };
+const dataDir = path.join(__dirname, 'data');
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
 
-function loadInitialCatalog() {
+const dataFilePath = path.join(dataDir, 'apinstrument.json');
+const ordersFilePath = path.join(dataDir, 'orders_history.json');
+const liveOrdersFilePath = path.join(dataDir, 'live_orders.json');
+
+// Ensure directories exist
+fs.mkdirSync(dataDir, { recursive: true });
+fs.mkdirSync(uploadsDir, { recursive: true });
+
+// Copy file recursively helper
+function copyDirRecursive(src, dest) {
   try {
-    if (fs.existsSync(dataFilePath)) {
-      memoryCatalog = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
-      console.log(`Loaded ${memoryCatalog.products.length} products and ${memoryCatalog.categories.length} categories.`);
+    if (!fs.existsSync(src)) return;
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+      if (entry.isDirectory()) {
+        fs.mkdirSync(destPath, { recursive: true });
+        copyDirRecursive(srcPath, destPath);
+      } else if (!fs.existsSync(destPath)) {
+        fs.copyFileSync(srcPath, destPath);
+      }
     }
-  } catch (e) {
-    console.error('Error loading dataFilePath:', e);
+  } catch (err) {
+    console.error('Error in copyDirRecursive:', err);
   }
 }
 
-loadInitialCatalog();
+// 1. Initial Sync & Data Loading:
+// If data directory was shadowed by an empty Docker mount, restore from master_seed
+function initializeData() {
+  // Restore apinstrument.json if missing or empty
+  if (!fs.existsSync(dataFilePath) || fs.statSync(dataFilePath).size < 100) {
+    if (fs.existsSync(masterSeedData)) {
+      console.log('Restoring catalog data from master_seed...');
+      fs.copyFileSync(masterSeedData, dataFilePath);
+    }
+  }
+
+  // Restore orders_history.json if missing
+  if (!fs.existsSync(ordersFilePath) || fs.statSync(ordersFilePath).size < 10) {
+    if (fs.existsSync(masterSeedOrders)) {
+      fs.copyFileSync(masterSeedOrders, ordersFilePath);
+    }
+  }
+
+  // Restore uploads if empty
+  const currentUploads = fs.readdirSync(uploadsDir);
+  if (currentUploads.length <= 1) {
+    console.log('Populating uploads from master_seed...');
+    copyDirRecursive(masterSeedUploads, uploadsDir);
+  }
+}
+
+initializeData();
+
+// In-memory catalog guaranteed from master_seed or active file
+let memoryCatalog = { categories: [], products: [], pages: [] };
+try {
+  if (fs.existsSync(dataFilePath) && fs.statSync(dataFilePath).size > 100) {
+    memoryCatalog = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+  } else if (fs.existsSync(masterSeedData)) {
+    memoryCatalog = JSON.parse(fs.readFileSync(masterSeedData, 'utf8'));
+  }
+  console.log(`[AP Instrument] Loaded ${memoryCatalog.products.length} products and ${memoryCatalog.categories.length} categories.`);
+} catch (err) {
+  console.error('Error loading catalog into memory:', err);
+}
 
 function getCatalog() {
-  // If external mapped file exists and has content, use it, else memoryCatalog
-  if (fs.existsSync(dataFilePath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
-      if (data && data.products && data.products.length > 0) {
-        return data;
+  try {
+    if (fs.existsSync(dataFilePath)) {
+      const fileData = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
+      if (fileData && fileData.products && fileData.products.length > 0) {
+        return fileData;
       }
-    } catch (e) {}
-  }
+    }
+  } catch (err) {}
   return memoryCatalog;
 }
 
@@ -56,53 +109,80 @@ function getLiveOrders() {
 
 function saveLiveOrders(orders) {
   try {
-    fs.mkdirSync(path.dirname(liveOrdersFilePath), { recursive: true });
     fs.writeFileSync(liveOrdersFilePath, JSON.stringify(orders, null, 2));
   } catch (e) {
     console.error('Error saving orders:', e);
   }
 }
 
-// Media fallback handler: if external mount is empty or file not found there, serve from bundled public/uploads!
+// Fallback Mallet SVG if any media file is not present
+const FALLBACK_MALLET_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="100%" height="100%" fill="#f7f6f2"/>
+  <line x1="80" y1="320" x2="300" y2="100" stroke="#8b5a2b" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="300" cy="100" r="42" fill="#c48243"/>
+  <circle cx="300" cy="100" r="32" fill="#e8d8c8"/>
+  <text x="200" y="360" font-family="sans-serif" font-size="16" font-weight="bold" fill="#5c3a21" text-anchor="middle">AP INSTRUMENT</text>
+  <text x="200" y="380" font-family="sans-serif" font-size="12" fill="#888" text-anchor="middle">Handcrafted Mallets</text>
+</svg>`;
+
+// Ultra-reliable static file handler for uploads:
+// 1. Checks server/public/uploads
+// 2. Checks master_seed/uploads
+// 3. Fallbacks gracefully without 404
 app.use('/uploads', (req, res, next) => {
-  const reqPath = decodeURIComponent(req.path);
-  // 1. Check external mount
-  const externalFile = path.join(externalUploadsDir, reqPath);
-  if (fs.existsSync(externalFile) && fs.statSync(externalFile).isFile()) {
-    return res.sendFile(externalFile);
+  const reqSubPath = decodeURIComponent(req.path).replace(/^\/+/, '');
+  
+  // 1. Try public uploads
+  const primaryPath = path.join(uploadsDir, reqSubPath);
+  if (fs.existsSync(primaryPath) && fs.statSync(primaryPath).isFile()) {
+    return res.sendFile(primaryPath);
   }
-  // 2. Check bundled uploads inside container
-  const bundledFile = path.join(bundledUploadsDir, reqPath);
-  if (fs.existsSync(bundledFile) && fs.statSync(bundledFile).isFile()) {
-    return res.sendFile(bundledFile);
+
+  // 2. Try master seed uploads
+  const seedPath = path.join(masterSeedUploads, reqSubPath);
+  if (fs.existsSync(seedPath) && fs.statSync(seedPath).isFile()) {
+    return res.sendFile(seedPath);
   }
+
+  // 3. If it is an image request, return fallback SVG
+  if (reqSubPath.match(/\.(jpg|jpeg|png|webp|gif|svg)$/i)) {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    return res.send(FALLBACK_MALLET_SVG);
+  }
+
   next();
 });
 
-// Serve other static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve frontend static assets (CSS, JS, HTML)
+app.use(express.static(path.join(__dirname, 'public'), {
+  etag: false,
+  maxAge: 0
+}));
 
 // API Routes
 
 // 1. Categories
 app.get('/api/categories', (req, res) => {
   const catalog = getCatalog();
-  res.json({ success: true, data: catalog.categories });
+  res.json({ success: true, count: catalog.categories.length, data: catalog.categories });
 });
 
-// 2. Products
+// 2. Products with filters
 app.get('/api/products', (req, res) => {
   const catalog = getCatalog();
   let list = catalog.products;
 
-  const { category, search, instrument, lang } = req.query;
+  const { category, search, instrument } = req.query;
 
   if (category) {
     list = list.filter(p => p.categories.some(c => c.slug === category || c.id === parseInt(category)));
   }
 
   if (instrument) {
-    list = list.filter(p => p.categories.some(c => c.slug === instrument || (c.name && c.name.it && c.name.it.toLowerCase().includes(instrument.toLowerCase()))));
+    list = list.filter(p => p.categories.some(c => 
+      c.slug === instrument || 
+      (c.name && c.name.it && c.name.it.toLowerCase().includes(instrument.toLowerCase()))
+    ));
   }
 
   if (search) {
@@ -152,7 +232,7 @@ app.post('/api/shipping/calculate', (req, res) => {
 
   if (!country || country === 'IT') {
     rate = 9.00;
-    zoneName = 'Italia Standard (Corriere Espresso)';
+    zoneName = 'Italia Standard (Corriere Espresso 24/48h)';
   } else if (['FR', 'DE', 'ES', 'AT', 'BE', 'NL', 'PT', 'PL', 'SE'].includes(country)) {
     rate = 16.00;
     zoneName = 'Unione Europea (Express Courier)';
@@ -168,7 +248,7 @@ app.post('/api/shipping/calculate', (req, res) => {
   });
 });
 
-// 5. Orders Creation
+// 5. Orders Creation (PayPal / BACS)
 app.post('/api/orders/create', (req, res) => {
   const { customer, items, shipping, paymentMethod, totals } = req.body;
 
@@ -224,6 +304,6 @@ app.get('*', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`===============================================`);
   console.log(`AP Instrument Modern Store running on port ${PORT}`);
-  console.log(`Open at: http://localhost:${PORT}`);
+  console.log(`Ready at: http://localhost:${PORT}`);
   console.log(`===============================================`);
 });

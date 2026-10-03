@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AP Instrument | Handcrafted Mallets & Percussions</title>
-  <meta name="description" content="Bacchette professionali per percussioni fatte a mano in Italia. Marimba, Vibrafono, Xilofono, Glockenspiel e Setup. Qualità sonora superiore.">
+  <title>AP Instrument | Bacchette per Percussioni - Marimba, Vibrafono, Xilofono</title>
+  <meta name="description" content="Acquista online bacchette per marimba, vibrafono, xilofono e glockenspiel artigianali AP Instrument. Qualità superiore, bilanciamento perfetto e timbro ricco.">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,35 +13,34 @@
   <!-- Top Announcement Bar -->
   <div class="mg-top-bar">
     <div class="mg-top-bar-inner">
-      <div><i class="fa-solid fa-gem" style="color: var(--mg-accent); margin-right: 6px;"></i> <span id="top-msg">Bacchette Artigianali Made in Italy • Spedizioni Internazionali</span></div>
-      <div style="display: flex; gap: 18px;">
-        <span><i class="fa-solid fa-shield-halved" style="color: var(--mg-accent);"></i> Pagamenti Sicuri PayPal / Carte</span>
+      <div><i class="fa-solid fa-gem" style="color: var(--mg-accent-gold); margin-right: 6px;"></i> <span id="top-msg">Bacchette Artigianali Made in Italy • Spedizioni in Tutto il Mondo</span></div>
+      <div style="display: flex; gap: 16px;">
+        <span><i class="fa-solid fa-shield-halved" style="color: var(--mg-accent-gold);"></i> Pagamenti Sicuri PayPal / Carte</span>
         <span><i class="fa-solid fa-envelope"></i> info@apinstrument.com</span>
       </div>
     </div>
   </div>
 
-  <!-- MG Mallets Styled Navbar with AP Instrument Original Logo -->
-  <header class="mg-navbar">
-    <div class="mg-nav-container">
-      <a href="/" class="mg-brand">
-        <!-- Official AP Instrument Logo -->
-        <img src="/uploads/logo-apinstrument.png" alt="AP Instrument" class="mg-brand-img" onerror="this.src='/uploads/logo-apinstrument-home.png'">
+  <!-- Header with Original AP Instrument Logo -->
+  <header class="mg-header">
+    <div class="mg-header-inner">
+      <a href="/" class="mg-logo-link">
+        <img src="/uploads/logo-apinstrument.png" alt="AP Instrument" class="mg-logo-img" onerror="this.onerror=null; this.src='/uploads/logo-apinstrument-home.png';">
       </a>
 
-      <!-- Navigation links (Instruments) -->
+      <!-- Navigation -->
       <nav class="mg-nav-menu" id="mg-nav-menu">
-        <a href="#catalog" class="mg-nav-link active" onclick="filterByCategory('all')">Tutti i Prodotti</a>
-        <a href="#catalog" class="mg-nav-link" onclick="filterByCategory('marimba')">Marimba</a>
-        <a href="#catalog" class="mg-nav-link" onclick="filterByCategory('vibrafono')">Vibrafono</a>
-        <a href="#catalog" class="mg-nav-link" onclick="filterByCategory('xilofono')">Xilofono</a>
-        <a href="#catalog" class="mg-nav-link" onclick="filterByCategory('glockenspiel')">Glockenspiel</a>
-        <a href="#catalog" class="mg-nav-link" onclick="filterByCategory('setup')">Setup</a>
-        <a href="javascript:void(0)" class="mg-nav-link" onclick="openCraftModal()">Artigianalità</a>
+        <div class="mg-nav-item active" onclick="filterByCategory('all')">Tutti i Prodotti</div>
+        <div class="mg-nav-item" onclick="filterByCategory('marimba')">Marimba</div>
+        <div class="mg-nav-item" onclick="filterByCategory('vibrafono')">Vibrafono</div>
+        <div class="mg-nav-item" onclick="filterByCategory('xilofono')">Xilofono</div>
+        <div class="mg-nav-item" onclick="filterByCategory('glockenspiel')">Glockenspiel</div>
+        <div class="mg-nav-item" onclick="filterByCategory('setup')">Setup</div>
+        <div class="mg-nav-item" onclick="openCraftModal()">La Nostra Bottega</div>
       </nav>
 
       <!-- Actions -->
-      <div class="mg-actions">
+      <div class="mg-header-actions">
         <div style="display: flex; gap: 4px;">
           <button class="mg-lang-btn active" id="btn-it" onclick="setLanguage('it')">IT</button>
           <button class="mg-lang-btn" id="btn-en" onclick="setLanguage('en')">EN</button>
@@ -52,79 +51,82 @@
           <span class="mg-cart-count" id="cart-counter">0</span>
         </button>
 
-        <button class="mg-mobile-toggle" onclick="toggleMobileNav()">
+        <button class="mg-menu-toggle" onclick="toggleMobileNav()">
           <i class="fa-solid fa-bars"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Hero Banner (MG Mallets Hero Style) -->
-  <section class="mg-hero-banner">
-    <h1 class="mg-hero-title" id="hero-title">BACCHETTE PERCUSSIONE <span id="hero-title-accent">HANDCRAFTED</span></h1>
-    <p class="mg-hero-desc" id="hero-desc">
-      Bacchette create e calibrate a mano con legni selezionati (Acero, Ulivo, Palissandro) e filati di lana ad alta tenacità per offrire una risposta sonora ideale a musicisti e percussionisti di ogni livello.
-    </p>
+  <!-- Hero Section (Exact MG Mallets Style Banner) -->
+  <section class="mg-hero-section">
+    <div class="mg-hero-inner">
+      <div class="mg-hero-title-box">
+        <h1 class="mg-hero-h1" id="hero-title">BACCHETTE PERCUSSIONE <span>- AP INSTRUMENT</span></h1>
+      </div>
+      <p class="mg-hero-text" id="hero-desc">
+        Ogni bacchetta è studiata nei minimi particolari per ottenere la massima gamma dinamica ed espressiva. Il bilanciamento meticoloso favorisce la corretta proiezione sonora: tutti i modelli montano <span class="mg-hero-tag">manici in Acero e Rattan naturale</span> e avvolgimento artigianale in <span class="mg-hero-tag">lana selezionata</span>.
+      </p>
+    </div>
   </section>
 
-  <!-- Main Catalog: Grid on Left + Categories on Right (Exact MG Mallets Layout) -->
-  <div class="mg-main-container" id="catalog">
+  <!-- Main Container: Products Grid (Left) + Categories Navigation (Right) -->
+  <div class="mg-main-grid" id="catalog">
     
-    <!-- Products Main Area -->
-    <main class="mg-content-area">
-      <!-- Toolbar -->
+    <!-- Left Column: Products -->
+    <main class="mg-products-column">
       <div class="mg-toolbar">
         <div>
           <h2 class="mg-toolbar-title" id="active-category-title">TUTTI I MODELLI</h2>
           <span id="products-count-badge" style="font-size: 0.85rem; color: var(--mg-text-muted);">127 modelli disponibili</span>
         </div>
 
-        <div class="mg-search-wrapper">
+        <div class="mg-search-box">
           <i class="fa-solid fa-magnifying-glass mg-search-icon"></i>
-          <input type="text" id="search-box" class="mg-search-input" placeholder="Cerca modello o codice SKU (es. ULV27, M101)..." oninput="handleSearch()">
+          <input type="text" id="search-box" class="mg-search-input" placeholder="Cerca modello o codice (es. ULV27, M101)..." oninput="handleSearch()">
         </div>
       </div>
 
       <!-- Products Grid -->
-      <div class="mg-products-grid" id="products-grid">
-        <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--mg-text-muted);">
-          <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem;"></i>
-          <p style="margin-top: 1rem;">Caricamento catalogo bacchette...</p>
-        </div>
+      <div class="mg-grid" id="products-grid">
+        <!-- Rendered instantly via JS -->
       </div>
     </main>
 
-    <!-- Sidebar Navigation (Right Column in MG Mallets Style) -->
-    <aside class="mg-sidebar">
+    <!-- Right Column: Sidebar Navigation (Exact MG Mallets Structure) -->
+    <aside class="mg-sidebar-box">
+      <h3 class="mg-sidebar-heading" id="txt-categories-heading">CATEGORIE & SERIE</h3>
       <div id="categories-tree-container">
-        <!-- Dynamically rendered -->
+        <!-- Rendered dynamically -->
       </div>
     </aside>
 
   </div>
 
-  <!-- Product Modal -->
-  <div class="mg-modal-bg" id="product-modal" onclick="closeModalOnBg(event)">
-    <div class="mg-modal">
-      <button class="mg-modal-close" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></button>
-      <div class="mg-modal-left">
+  <!-- Product Details Modal -->
+  <div class="mg-modal-overlay" id="product-modal" onclick="closeModalOnBg(event)">
+    <div class="mg-modal-body">
+      <button class="mg-modal-close-btn" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div class="mg-modal-img-col">
         <img id="modal-img" src="" alt="Product">
-        <div id="modal-gallery-thumbs" style="display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap;"></div>
+        <div id="modal-gallery-thumbs" style="display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap; justify-content: center;"></div>
       </div>
-      <div class="mg-modal-right">
-        <span class="mg-card-series" id="modal-series">SERIE</span>
-        <h2 id="modal-title" style="font-family: var(--mg-font-title); font-size: 2rem; text-transform: uppercase; color: #fff; margin-bottom: 0.6rem;">TITOLO</h2>
-        <span id="modal-sku" class="mg-badge-sku" style="position: static; width: fit-content; margin-bottom: 1.2rem;">SKU</span>
-        <div class="mg-price" id="modal-price" style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--mg-accent);">€ 0.00</div>
-        
-        <div id="modal-desc" style="color: var(--mg-text-gray); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.5rem;"></div>
 
-        <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; text-transform: uppercase; color: #fff; margin-bottom: 0.6rem;">Specifiche Tecniche</h4>
-        <div class="mg-specs-summary" id="modal-specs" style="margin-bottom: 2rem;"></div>
+      <div class="mg-modal-info-col">
+        <span class="mg-card-series" id="modal-series">SERIE</span>
+        <h2 id="modal-title" style="font-family: var(--mg-font-title); font-size: 1.8rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 0.5rem;">TITOLO</h2>
+        <span id="modal-sku" class="mg-sku-badge" style="position: static; width: fit-content; margin-bottom: 1rem;">SKU</span>
+        <div class="mg-card-price" id="modal-price" style="font-size: 1.8rem; margin-bottom: 1.2rem; color: var(--mg-wood-warm);">€ 0.00</div>
+        
+        <div id="modal-desc" style="color: var(--mg-text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;"></div>
+
+        <h4 style="font-family: var(--mg-font-title); font-size: 1rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 0.6rem;">Caratteristiche Costruttive</h4>
+        <div class="mg-card-specs" id="modal-specs" style="margin-bottom: 2rem;"></div>
 
         <div style="display: flex; gap: 10px; margin-top: auto;">
-          <input type="number" id="modal-qty" value="1" min="1" max="50" style="width: 60px; padding: 10px; background: var(--mg-card-inner); border: 1px solid var(--mg-border-light); color: #fff; border-radius: 4px; text-align: center;">
-          <button class="mg-btn-add" style="flex: 1; padding: 12px; font-size: 1rem;" onclick="addModalToCart()">
+          <input type="number" id="modal-qty" value="1" min="1" max="50" style="width: 60px; padding: 10px; border: 1px solid var(--mg-card-border); border-radius: 4px; text-align: center; font-size: 1rem;">
+          <button class="mg-card-add-btn" style="flex: 1; padding: 12px; font-size: 0.95rem; background: var(--mg-dark-bar);" onclick="addModalToCart()">
             <i class="fa-solid fa-cart-plus"></i> Aggiungi al Carrello
           </button>
         </div>
@@ -133,71 +135,71 @@
   </div>
 
   <!-- Craftsmanship Modal -->
-  <div class="mg-modal-bg" id="craft-modal" onclick="closeModalOnBg(event)">
-    <div class="mg-modal" style="grid-template-columns: 1fr; padding: 2.5rem; max-width: 750px;">
-      <button class="mg-modal-close" onclick="closeCraftModal()"><i class="fa-solid fa-xmark"></i></button>
-      <h2 style="font-family: var(--mg-font-title); font-size: 2.2rem; text-transform: uppercase; color: var(--mg-accent); margin-bottom: 1rem;">
-        <i class="fa-solid fa-hammer"></i> Artigianalità AP Instrument
+  <div class="mg-modal-overlay" id="craft-modal" onclick="closeModalOnBg(event)">
+    <div class="mg-modal-body" style="grid-template-columns: 1fr; padding: 2.5rem; max-width: 750px;">
+      <button class="mg-modal-close-btn" onclick="closeCraftModal()"><i class="fa-solid fa-xmark"></i></button>
+      <h2 style="font-family: var(--mg-font-title); font-size: 2.2rem; text-transform: uppercase; color: var(--mg-wood-warm); margin-bottom: 1rem;">
+        <i class="fa-solid fa-hammer"></i> La Bottega Artigianale AP Instrument
       </h2>
-      <p style="color: var(--mg-text-gray); line-height: 1.7; margin-bottom: 1rem;">
-        Ogni bacchetta <strong>AP Instrument</strong> è il risultato di anni di studio acustico e manualità sartoriale Made in Italy. Selezioniamo solo i legni migliori (Acero, Ulivo calabrese, Palissandro e Rattan naturale), testando attentamente ciascuna asta per garantire uniformità di bilanciamento, peso e flessibilità.
+      <p style="color: var(--mg-text-muted); line-height: 1.7; margin-bottom: 1rem;">
+        Ogni bacchetta <strong>AP Instrument</strong> è il risultato di anni di studio acustico e manualità sartoriale Made in Italy. Selezioniamo con cura solo le migliori essenze (Acero, Ulivo calabrese, Palissandro e Rattan naturale), testando attentamente ciascuna asta per garantire uniformità di peso e flessibilità.
       </p>
-      <p style="color: var(--mg-text-gray); line-height: 1.7; margin-bottom: 1.5rem;">
-        La filatura delle teste viene eseguita a mano con pura lana e anime calibrate, per una proiezione timbrica ricca di armonici che esalta la voce di marimba, vibrafono e xilofono in qualsiasi contesto esecutivo.
+      <p style="color: var(--mg-text-muted); line-height: 1.7; margin-bottom: 1.5rem;">
+        La filatura delle teste viene eseguita a mano con pura lana e anime calibrate, per una proiezione timbrica ricca di armonici che esalta la voce di marimba, vibrafono, xilofono e glockenspiel.
       </p>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
-        <div style="background: var(--mg-card-inner); padding: 1.2rem; border-radius: 6px;">
-          <i class="fa-solid fa-tree" style="font-size: 1.8rem; color: var(--mg-accent); margin-bottom: 0.5rem;"></i>
-          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: #fff;">Legni Nobili</h4>
+        <div style="background: #faf8f5; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--mg-card-border);">
+          <i class="fa-solid fa-tree" style="font-size: 1.8rem; color: var(--mg-wood-warm); margin-bottom: 0.5rem;"></i>
+          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: var(--mg-text-main);">Legni Nobili</h4>
         </div>
-        <div style="background: var(--mg-card-inner); padding: 1.2rem; border-radius: 6px;">
-          <i class="fa-solid fa-hand-holding-heart" style="font-size: 1.8rem; color: var(--mg-accent); margin-bottom: 0.5rem;"></i>
-          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: #fff;">Fatto a Mano</h4>
+        <div style="background: #faf8f5; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--mg-wood-warm); border: 1px solid var(--mg-card-border);">
+          <i class="fa-solid fa-hand-holding-heart" style="font-size: 1.8rem; color: var(--mg-wood-warm); margin-bottom: 0.5rem;"></i>
+          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: var(--mg-text-main);">Fatto a Mano</h4>
         </div>
-        <div style="background: var(--mg-card-inner); padding: 1.2rem; border-radius: 6px;">
-          <i class="fa-solid fa-sliders" style="font-size: 1.8rem; color: var(--mg-accent); margin-bottom: 0.5rem;"></i>
-          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: #fff;">Pesi Calibrati</h4>
+        <div style="background: #faf8f5; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--mg-card-border);">
+          <i class="fa-solid fa-sliders" style="font-size: 1.8rem; color: var(--mg-wood-warm); margin-bottom: 0.5rem;"></i>
+          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: var(--mg-text-main);">Pesi Calibrati</h4>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Cart Drawer -->
-  <div class="mg-drawer-overlay" id="cart-overlay" onclick="toggleCart()"></div>
-  <div class="mg-drawer" id="cart-drawer">
-    <div class="mg-drawer-head">
-      <h3 style="font-family: var(--mg-font-title); font-size: 1.4rem; text-transform: uppercase; color: #fff;">Il Tuo Carrello</h3>
-      <button onclick="toggleCart()" style="background: none; border: none; color: var(--mg-text-gray); font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+  <!-- Cart Slide-out Drawer -->
+  <div class="mg-drawer-backdrop" id="cart-overlay" onclick="toggleCart()"></div>
+  <div class="mg-drawer-panel" id="cart-drawer">
+    <div class="mg-drawer-top">
+      <h3 style="font-family: var(--mg-font-title); font-size: 1.35rem; text-transform: uppercase; color: var(--mg-text-main);">Il Tuo Carrello</h3>
+      <button onclick="toggleCart()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--mg-text-muted);"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <div class="mg-drawer-body" id="cart-items">
+    <div class="mg-drawer-scroll" id="cart-items">
       <!-- Items -->
     </div>
 
-    <div class="mg-drawer-foot" id="cart-footer" style="display: none;">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: var(--mg-text-gray);">
+    <div class="mg-drawer-bottom" id="cart-footer" style="display: none;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: var(--mg-text-muted);">
         <span>Subtotale:</span>
-        <strong id="cart-subtotal" style="color: #fff;">€ 0.00</strong>
+        <strong id="cart-subtotal" style="color: var(--mg-text-main);">€ 0.00</strong>
       </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: var(--mg-text-gray);">
-        <span>Spedizione:</span>
-        <strong id="cart-shipping" style="color: #fff;">€ 9.00</strong>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: var(--mg-text-muted);">
+        <span>Spedizione stimata:</span>
+        <strong id="cart-shipping" style="color: var(--mg-text-main);">€ 9.00</strong>
       </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 1.2rem; font-size: 1.4rem; color: var(--mg-accent); border-top: 1px solid var(--mg-border); padding-top: 8px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 1.2rem; font-size: 1.35rem; color: var(--mg-wood-warm); border-top: 1px solid var(--mg-card-border); padding-top: 8px;">
         <span>Totale:</span>
         <strong id="cart-total">€ 0.00</strong>
       </div>
 
-      <button class="mg-btn-add" style="width: 100%; padding: 12px; font-size: 1.05rem;" onclick="showCheckoutView()">
-        <i class="fa-solid fa-lock"></i> Procedi al Checkout
+      <button class="mg-card-add-btn" style="width: 100%; padding: 12px; font-size: 1rem; background: var(--mg-dark-bar);" onclick="showCheckoutView()">
+        <i class="fa-solid fa-lock"></i> Procedi all'Ordine
       </button>
     </div>
 
-    <!-- Checkout View Pane -->
+    <!-- Checkout View -->
     <div id="checkout-pane" style="display: none; padding: 1.5rem; overflow-y: auto; height: 100%;">
-      <button onclick="hideCheckoutView()" style="background: none; border: none; color: var(--mg-accent); cursor: pointer; font-weight: 600; margin-bottom: 1rem;"><i class="fa-solid fa-arrow-left"></i> Torna al Carrello</button>
+      <button onclick="hideCheckoutView()" style="background: none; border: none; color: var(--mg-wood-warm); cursor: pointer; font-weight: 600; margin-bottom: 1rem;"><i class="fa-solid fa-arrow-left"></i> Torna al Carrello</button>
       
-      <h3 style="font-family: var(--mg-font-title); font-size: 1.4rem; text-transform: uppercase; color: #fff; margin-bottom: 1rem;">Dati di Spedizione</h3>
+      <h3 style="font-family: var(--mg-font-title); font-size: 1.35rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 1rem;">Dati di Spedizione</h3>
       <form id="checkout-form">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
           <input type="text" id="cust-first" placeholder="Nome *" required class="mg-search-input">
@@ -211,44 +213,44 @@
           <input type="text" id="cust-zip" placeholder="CAP *" required class="mg-search-input">
         </div>
         <select id="cust-country" class="mg-search-input" style="margin-bottom: 1rem;" onchange="updateShippingCountry()">
-          <option value="IT">Italia (Spedizione € 9.00)</option>
-          <option value="FR">Francia (Spedizione € 16.00)</option>
-          <option value="DE">Germania (Spedizione € 16.00)</option>
-          <option value="ES">Spagna (Spedizione € 16.00)</option>
+          <option value="IT">Italia (Corriere Espresso € 9.00)</option>
+          <option value="FR">Francia (Corriere Espresso € 16.00)</option>
+          <option value="DE">Germania (Corriere Espresso € 16.00)</option>
+          <option value="ES">Spagna (Corriere Espresso € 16.00)</option>
           <option value="OTHER">Altri Paesi UE / Extra UE (€ 25.00)</option>
         </select>
 
-        <div style="border-top: 1px solid var(--mg-border); padding-top: 10px; margin-bottom: 1.2rem;">
-          <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--mg-text-muted); display: block; margin-bottom: 4px;">Dati Fiscali Italia (Opzionale)</span>
+        <div style="border-top: 1px solid var(--mg-card-border); padding-top: 8px; margin-bottom: 1.2rem;">
+          <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--mg-text-muted); display: block; margin-bottom: 4px;">Dati Fiscali Fatturazione Italia (Opzionale)</span>
           <input type="text" id="cust-cf" placeholder="Codice Fiscale" class="mg-search-input" style="margin-bottom: 6px;">
           <input type="text" id="cust-piva" placeholder="Partita IVA" class="mg-search-input">
         </div>
 
-        <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; text-transform: uppercase; color: #fff; margin-bottom: 0.8rem;">Pagamento</h4>
+        <h4 style="font-family: var(--mg-font-title); font-size: 1.05rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 0.8rem;">Pagamento</h4>
         
-        <button type="button" class="mg-btn-add" style="width: 100%; margin-bottom: 8px; background: #0070ba; color: #fff;" onclick="processPayment('paypal')">
-          <i class="fa-brands fa-paypal"></i> Paga con PayPal / Carta
+        <button type="button" class="mg-card-add-btn" style="width: 100%; margin-bottom: 8px; background: #0070ba; color: #fff; padding: 12px;" onclick="processPayment('paypal')">
+          <i class="fa-brands fa-paypal"></i> Paga con PayPal o Carte
         </button>
-        <button type="button" class="mg-lang-btn" style="width: 100%; padding: 10px; font-size: 0.85rem;" onclick="processPayment('bacs')">
+        <button type="button" class="mg-lang-btn" style="width: 100%; padding: 10px; font-size: 0.85rem; color: #333; border-color: #ccc;" onclick="processPayment('bacs')">
           <i class="fa-solid fa-building-columns"></i> Bonifico Bancario
         </button>
       </form>
     </div>
   </div>
 
-  <!-- MG Mallets Style Dark Footer -->
-  <footer class="mg-footer">
-    <div class="mg-footer-inner">
+  <!-- Footer (Dark Luxury Style) -->
+  <footer class="mg-footer-container">
+    <div class="mg-footer-wrap">
       <div>
-        <img src="/uploads/logo-apinstrument.png" alt="AP Instrument" style="height: 44px; margin-bottom: 1rem;" onerror="this.src='/uploads/logo-apinstrument-home.png'">
-        <p style="color: var(--mg-text-gray); font-size: 0.88rem; line-height: 1.6; max-width: 360px;">
-          Eccellenza artigianale italiana nella costruzione di bacchette professionali per percussioni a tastiera e orchestrali.
+        <img src="/uploads/logo-apinstrument.png" alt="AP Instrument" style="height: 46px; margin-bottom: 1rem;" onerror="this.onerror=null; this.src='/uploads/logo-apinstrument-home.png';">
+        <p style="color: #a8a096; font-size: 0.88rem; line-height: 1.6; max-width: 360px;">
+          Costruzione artigianale di bacchette da concerto per marimba, vibrafono, xilofono e glockenspiel. Made in Italy.
         </p>
       </div>
 
       <div>
-        <h4 class="mg-footer-title">Prodotti</h4>
-        <ul class="mg-footer-links">
+        <h4 class="mg-footer-h4">Prodotti</h4>
+        <ul class="mg-footer-list">
           <li><a href="javascript:void(0)" onclick="filterByCategory('marimba')">Marimba</a></li>
           <li><a href="javascript:void(0)" onclick="filterByCategory('vibrafono')">Vibrafono</a></li>
           <li><a href="javascript:void(0)" onclick="filterByCategory('xilofono')">Xilofono</a></li>
@@ -258,9 +260,9 @@
       </div>
 
       <div>
-        <h4 class="mg-footer-title">Informazioni</h4>
-        <ul class="mg-footer-links">
-          <li><a href="javascript:void(0)" onclick="openCraftModal()">La Bottega Artigianale</a></li>
+        <h4 class="mg-footer-h4">Informazioni</h4>
+        <ul class="mg-footer-list">
+          <li><a href="javascript:void(0)" onclick="openCraftModal()">La Nostra Bottega</a></li>
           <li><a href="javascript:void(0)" onclick="alert('Spedizioni corriere espresso 24/48h Italia, 3-5gg Europa.')">Spedizioni & Consegna</a></li>
           <li><a href="javascript:void(0)" onclick="alert('Pagamenti crittografati SSL tramite gateway PayPal e Carte.')">Pagamenti Sicuri</a></li>
           <li><a href="mailto:info@apinstrument.com">Contattaci</a></li>
@@ -268,22 +270,26 @@
       </div>
 
       <div>
-        <h4 class="mg-footer-title">Contatti</h4>
-        <p style="color: var(--mg-text-gray); font-size: 0.88rem; margin-bottom: 6px;"><i class="fa-solid fa-envelope" style="color: var(--mg-accent); margin-right: 6px;"></i> info@apinstrument.com</p>
-        <p style="color: var(--mg-text-gray); font-size: 0.88rem; margin-bottom: 1rem;"><i class="fa-solid fa-location-dot" style="color: var(--mg-accent); margin-right: 6px;"></i> Made in Italy</p>
+        <h4 class="mg-footer-h4">Contatti</h4>
+        <p style="color: #a8a096; font-size: 0.88rem; margin-bottom: 6px;"><i class="fa-solid fa-envelope" style="color: var(--mg-accent-gold); margin-right: 6px;"></i> info@apinstrument.com</p>
+        <p style="color: #a8a096; font-size: 0.88rem; margin-bottom: 1rem;"><i class="fa-solid fa-location-dot" style="color: var(--mg-accent-gold); margin-right: 6px;"></i> Italia • Fatto a Mano</p>
         <div style="display: flex; gap: 12px;">
-          <a href="#" style="color: var(--mg-accent); font-size: 1.2rem;"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" style="color: var(--mg-accent); font-size: 1.2rem;"><i class="fa-brands fa-facebook"></i></a>
-          <a href="#" style="color: var(--mg-accent); font-size: 1.2rem;"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#" style="color: var(--mg-accent-gold); font-size: 1.2rem;"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" style="color: var(--mg-accent-gold); font-size: 1.2rem;"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#" style="color: var(--mg-accent-gold); font-size: 1.2rem;"><i class="fa-brands fa-youtube"></i></a>
         </div>
       </div>
     </div>
 
-    <div class="mg-footer-bottom">
-      <p>© 2026 AP Instrument. All rights reserved. Handcrafted in Italy.</p>
+    <div class="mg-footer-copy">
+      <p>© 2026 AP Instrument. All rights reserved. Handcrafted Mallets Made in Italy.</p>
     </div>
   </footer>
 
+  <!-- 1. Instant Catalog Data Bundle (Zero-latency rendering) -->
+  <script src="/js/catalog-data.js"></script>
+
+  <!-- 2. Application Logic -->
   <script src="/js/app.js"></script>
 </body>
 </html>
