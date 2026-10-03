@@ -3,20 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AP Instrument | Bacchette per Percussioni - Marimba, Vibrafono, Xilofono</title>
-  <meta name="description" content="Acquista online bacchette per marimba, vibrafono, xilofono e glockenspiel artigianali AP Instrument. Qualità superiore, bilanciamento perfetto e timbro ricco.">
-  <link rel="stylesheet" href="/css/style.css">
+  <title>AP Instrument | Bacchette Artigianali da Concerto - Marimba, Vibrafono, Xilofono</title>
+  <meta name="description" content="Bacchette professionali per percussioni a tastiera fatte a mano in Italia. Serie Signature Satomi Takashima, Simone Rubino, Tatsushi Omori. Rattan calibrato e legni nobili.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
   <!-- Top Announcement Bar -->
   <div class="mg-top-bar">
     <div class="mg-top-bar-inner">
-      <div><i class="fa-solid fa-gem" style="color: var(--mg-accent-gold); margin-right: 6px;"></i> <span id="top-msg">Bacchette Artigianali Made in Italy • Spedizioni in Tutto il Mondo</span></div>
-      <div style="display: flex; gap: 16px;">
-        <span><i class="fa-solid fa-shield-halved" style="color: var(--mg-accent-gold);"></i> Pagamenti Sicuri PayPal / Carte</span>
-        <span><i class="fa-solid fa-envelope"></i> info@apinstrument.com</span>
+      <div class="top-tagline">
+        <i class="fa-solid fa-award gold-icon"></i>
+        <span>100% Fatto a Mano in Italia • Spedizioni Espresse in Tutto il Mondo</span>
+      </div>
+      <div class="top-meta">
+        <span><i class="fa-solid fa-shield-halved gold-icon"></i> Pagamenti Sicuri PayPal & Carte</span>
+        <span><i class="fa-solid fa-envelope gold-icon"></i> info@apinstrument.com</span>
       </div>
     </div>
   </div>
@@ -24,272 +30,661 @@
   <!-- Header with Original AP Instrument Logo -->
   <header class="mg-header">
     <div class="mg-header-inner">
-      <a href="/" class="mg-logo-link">
+      <a href="/" class="mg-logo-link" title="AP Instrument Home">
         <img src="/uploads/logo-apinstrument.png" alt="AP Instrument" class="mg-logo-img" onerror="this.onerror=null; this.src='/uploads/logo-apinstrument-home.png';">
       </a>
 
-      <!-- Navigation -->
+      <!-- Main Navigation -->
       <nav class="mg-nav-menu" id="mg-nav-menu">
-        <div class="mg-nav-item active" onclick="filterByCategory('all')">Tutti i Prodotti</div>
-        <div class="mg-nav-item" onclick="filterByCategory('marimba')">Marimba</div>
-        <div class="mg-nav-item" onclick="filterByCategory('vibrafono')">Vibrafono</div>
-        <div class="mg-nav-item" onclick="filterByCategory('xilofono')">Xilofono</div>
-        <div class="mg-nav-item" onclick="filterByCategory('glockenspiel')">Glockenspiel</div>
-        <div class="mg-nav-item" onclick="filterByCategory('setup')">Setup</div>
-        <div class="mg-nav-item" onclick="openCraftModal()">La Nostra Bottega</div>
+        <a href="#catalog" class="mg-nav-item active" onclick="filterByCategory('all')">Tutti i Modelli</a>
+        <a href="#catalog" class="mg-nav-item" onclick="filterByCategory('marimba')">Marimba</a>
+        <a href="#catalog" class="mg-nav-item" onclick="filterByCategory('vibrafono')">Vibrafono</a>
+        <a href="#catalog" class="mg-nav-item" onclick="filterByCategory('xilofono')">Xilofono</a>
+        <a href="#catalog" class="mg-nav-item" onclick="filterByCategory('glockenspiel')">Glockenspiel</a>
+        <a href="#catalog" class="mg-nav-item satomi-nav-highlight" onclick="filterByCategory('satomi-takashima')">
+          <i class="fa-solid fa-star" style="color: var(--mg-accent-gold);"></i> Satomi Signature
+        </a>
+        <a href="javascript:void(0)" class="mg-nav-item" onclick="openCraftModal()">La Bottega</a>
       </nav>
 
-      <!-- Actions -->
+      <!-- Header Actions -->
       <div class="mg-header-actions">
-        <div style="display: flex; gap: 4px;">
+        <!-- Language Switcher -->
+        <div class="mg-lang-switch">
           <button class="mg-lang-btn active" id="btn-it" onclick="setLanguage('it')">IT</button>
           <button class="mg-lang-btn" id="btn-en" onclick="setLanguage('en')">EN</button>
         </div>
 
-        <button class="mg-cart-btn" onclick="toggleCart()" title="Carrello">
+        <!-- Cart Button with Counter -->
+        <button class="mg-cart-btn" onclick="toggleCart()" title="Visualizza Carrello" id="header-cart-btn">
           <i class="fa-solid fa-bag-shopping"></i>
           <span class="mg-cart-count" id="cart-counter">0</span>
         </button>
 
-        <button class="mg-menu-toggle" onclick="toggleMobileNav()">
+        <!-- Mobile Menu Toggle -->
+        <button class="mg-menu-toggle" onclick="toggleMobileNav()" aria-label="Menu">
           <i class="fa-solid fa-bars"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section (Exact MG Mallets Style Banner) -->
-  <section class="mg-hero-section">
-    <div class="mg-hero-inner">
-      <div class="mg-hero-title-box">
-        <h1 class="mg-hero-h1" id="hero-title">BACCHETTE PERCUSSIONE <span>- AP INSTRUMENT</span></h1>
+  <!-- =========================================================================
+       HERO SPOTLIGHT: SATOMI TAKASHIMA SIGNATURE SERIES
+       Grafica avvincente, moderna, interattiva (Preview modelli ST1-ST5 + Video)
+       ========================================================================= -->
+  <section class="satomi-hero-section" id="satomi-hero">
+    <!-- Atmospheric Ambient Background Glow -->
+    <div class="satomi-hero-bg" style="background-image: linear-gradient(90deg, rgba(14,13,11,0.95) 0%, rgba(18,17,14,0.85) 50%, rgba(14,13,11,0.7) 100%), url('/uploads/Satomi6.jpg');"></div>
+    
+    <div class="satomi-hero-container">
+      
+      <!-- Left Column: Story & Call to Actions -->
+      <div class="satomi-hero-story">
+        
+        <div class="satomi-pill-badge">
+          <span class="badge-flag">🇯🇵</span>
+          <span class="badge-text">ARTIST SIGNATURE • MARIMBA JAPAN BLUE</span>
+        </div>
+
+        <h1 class="satomi-title">
+          SATOMI <span class="highlight">TAKASHIMA</span>
+        </h1>
+        
+        <p class="satomi-subtitle">
+          La purezza acustica del legno unita alla sartorialità italiana e alla grazia tradizionale del filato <strong>Alpaca "Japan Blue"</strong>.
+        </p>
+
+        <p class="satomi-quote">
+          «Una serie creata per passare con naturalezza dal pianissimo più sussurrato all'impatto forte e ricco delle grandi sale da concerto. Con una forza minima, ogni tremolo fluisce con precisione e grazia assoluta.»
+        </p>
+
+        <!-- Highlight Features Grid -->
+        <div class="satomi-features-grid">
+          <div class="satomi-feat-item">
+            <i class="fa-solid fa-wave-square feat-icon"></i>
+            <div>
+              <strong>Nucleo Speciale Termico</strong>
+              <span>Non assorbe calore e non si deforma nel tempo.</span>
+            </div>
+          </div>
+
+          <div class="satomi-feat-item">
+            <i class="fa-solid fa-wand-magic-sparkles feat-icon"></i>
+            <div>
+              <strong>Filato Alpaca Tradizionale</strong>
+              <span>Colore Blu Indaco Kimono ad altissima risonanza.</span>
+            </div>
+          </div>
+
+          <div class="satomi-feat-item">
+            <i class="fa-solid fa-seedling feat-icon"></i>
+            <div>
+              <strong>Manici Selezionati al mm</strong>
+              <span>Rattan flessibile 8.8/9.2mm o Acero bilanciato 8mm.</span>
+            </div>
+          </div>
+
+          <div class="satomi-feat-item">
+            <i class="fa-solid fa-palette feat-icon"></i>
+            <div>
+              <strong>5 Durezze Cromatiche</strong>
+              <span>Dalla morbidezza vellutata alla brillantezza estrema.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="satomi-cta-group">
+          <button class="btn-satomi-video" onclick="openVideoModal('qqVgKmf5Sio', 'Satomi Takashima • Concerto & Presentazione AP Instrument')">
+            <span class="play-pulse"><i class="fa-solid fa-play"></i></span>
+            <span>Guarda Satomi all'Opera</span>
+          </button>
+          
+          <button class="btn-satomi-shop" onclick="filterByCategory('satomi-takashima')">
+            <i class="fa-solid fa-circle-nodes"></i>
+            <span>Scopri i 5 Modelli ST</span>
+          </button>
+        </div>
+
       </div>
-      <p class="mg-hero-text" id="hero-desc">
-        Ogni bacchetta è studiata nei minimi particolari per ottenere la massima gamma dinamica ed espressiva. Il bilanciamento meticoloso favorisce la corretta proiezione sonora: tutti i modelli montano <span class="mg-hero-tag">manici in Acero e Rattan naturale</span> e avvolgimento artigianale in <span class="mg-hero-tag">lana selezionata</span>.
-      </p>
+
+      <!-- Right Column: Interactive 5-Model Dynamic Switcher -->
+      <div class="satomi-hero-interactive">
+        <div class="st-interactive-card">
+          
+          <div class="st-card-header">
+            <span class="st-card-label">SELETTORE INTERATTIVO SERIE ST</span>
+            <span class="st-card-status"><i class="fa-solid fa-circle-check"></i> Disponibile a Magazzino</span>
+          </div>
+
+          <!-- 5 Color Tabs: ST1 to ST5 -->
+          <div class="st-model-tabs" id="st-model-tabs">
+            <button class="st-tab-btn active" data-model="ST1" onclick="switchSTModel('ST1')">
+              <span class="st-tab-dot dot-green"></span>
+              <span class="st-tab-name">ST1</span>
+              <span class="st-tab-tone">Soft</span>
+            </button>
+            <button class="st-tab-btn" data-model="ST2" onclick="switchSTModel('ST2')">
+              <span class="st-tab-dot dot-white"></span>
+              <span class="st-tab-name">ST2</span>
+              <span class="st-tab-tone">Med-Soft</span>
+            </button>
+            <button class="st-tab-btn" data-model="ST3" onclick="switchSTModel('ST3')">
+              <span class="st-tab-dot dot-red"></span>
+              <span class="st-tab-name">ST3</span>
+              <span class="st-tab-tone">Medium</span>
+            </button>
+            <button class="st-tab-btn" data-model="ST4" onclick="switchSTModel('ST4')">
+              <span class="st-tab-dot dot-gold"></span>
+              <span class="st-tab-name">ST4</span>
+              <span class="st-tab-tone">Med-Hard</span>
+            </button>
+            <button class="st-tab-btn" data-model="ST5" onclick="switchSTModel('ST5')">
+              <span class="st-tab-dot dot-rainbow"></span>
+              <span class="st-tab-name">ST5</span>
+              <span class="st-tab-tone">Hard</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Active Model Presentation -->
+          <div class="st-preview-stage" id="st-preview-stage">
+            
+            <div class="st-image-col">
+              <img id="st-preview-img" src="/uploads/2024/06/ST1-01.jpg" alt="ST1 Soft" class="st-main-img" onerror="this.onerror=null; this.src='/uploads/Satomi5.jpg';">
+              <span class="st-color-tag" id="st-color-tag" style="background: #689f38;">Collarino Verde</span>
+            </div>
+
+            <div class="st-details-col">
+              <div class="st-title-row">
+                <div>
+                  <h3 class="st-model-title" id="st-model-title">ST1 SOFT</h3>
+                  <div class="st-sound-badge" id="st-sound-badge">Timbro Vellutato da Concerto</div>
+                </div>
+                <div class="st-price-tag" id="st-price-tag">€ 31.50 <small>/ paio</small></div>
+              </div>
+
+              <p class="st-description" id="st-description">
+                Morbida come un cuscino, ideale per far emergere i toni caldi e profondi della marimba. Perfetta per grandi sale da concerto e pianissimi espressivi.
+              </p>
+
+              <!-- Technical Specs Grid -->
+              <div class="st-specs-mini">
+                <div class="st-spec-cell">
+                  <span class="spec-k">Peso</span>
+                  <span class="spec-v" id="st-spec-weight">43g Legno / 48g Rattan</span>
+                </div>
+                <div class="st-spec-cell">
+                  <span class="spec-k">Nucleo</span>
+                  <span class="spec-v" id="st-spec-core">Gomma Tecnica Morbida</span>
+                </div>
+                <div class="st-spec-cell">
+                  <span class="spec-k">Lunghezza</span>
+                  <span class="spec-v">42.5 cm</span>
+                </div>
+                <div class="st-spec-cell">
+                  <span class="spec-k">Filato</span>
+                  <span class="spec-v">Pura Lana Alpaca</span>
+                </div>
+              </div>
+
+              <!-- Interactive Buttons -->
+              <div class="st-actions-row">
+                <button class="btn-st-demo" id="btn-st-demo" onclick="playCurrentSTVideo()">
+                  <i class="fa-solid fa-volume-high"></i> Ascolta Demo Video
+                </button>
+                <button class="btn-st-buy" id="btn-st-buy" onclick="addCurrentSTToCart()">
+                  <i class="fa-solid fa-cart-plus"></i> Aggiungi al Carrello
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- Main Container: Products Grid (Left) + Categories Navigation (Right) -->
-  <div class="mg-main-grid" id="catalog">
+  <!-- =========================================================================
+       ARTISAN EXCELLENCE STRIP ("IL FATTO A MANO")
+       ========================================================================= -->
+  <section class="mg-craft-strip">
+    <div class="mg-craft-inner">
+      <div class="mg-craft-card">
+        <i class="fa-solid fa-tree craft-icon"></i>
+        <div>
+          <h4>Legni Pregiati da Concerto</h4>
+          <p>Ebano del Gabon, Palissandro Santos, Ulivo calabrese, Azobé e Bosso.</p>
+        </div>
+      </div>
+
+      <div class="mg-craft-card">
+        <i class="fa-solid fa-scale-balanced craft-icon"></i>
+        <div>
+          <h4>Rattan Naturale Calibrato</h4>
+          <p>Selezionato e pesato a mano al decimo di grammo per un bilanciamento ideale.</p>
+        </div>
+      </div>
+
+      <div class="mg-craft-card">
+        <i class="fa-solid fa-hands-holding-circle craft-icon"></i>
+        <div>
+          <h4>100% Sartoriale Made in Italy</h4>
+          <p>Ogni mazzuola è avvolta artigianalmente e controllata acusticamente.</p>
+        </div>
+      </div>
+
+      <div class="mg-craft-card">
+        <i class="fa-solid fa-music craft-icon"></i>
+        <div>
+          <h4>Scelta dai Grandi Concertisti</h4>
+          <p>Sviluppata a stretto contatto con marimbisti e percussionisti internazionali.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       CATALOG SECTION WITH DYNAMIC CONTROLS & HORIZONTAL INSTRUMENT PILLS
+       ========================================================================= -->
+  <div class="mg-catalog-anchor" id="catalog"></div>
+  
+  <!-- Interactive Horizontal Instrument Tabs Bar -->
+  <section class="mg-instrument-bar-wrapper">
+    <div class="mg-instrument-bar-inner">
+      <div class="mg-instrument-tabs" id="instrument-tabs">
+        <button class="inst-tab active" data-cat="all" onclick="filterByCategory('all')">
+          <i class="fa-solid fa-border-all"></i>
+          <span>Tutti i Modelli</span>
+          <span class="inst-count">127</span>
+        </button>
+
+        <button class="inst-tab" data-cat="marimba" onclick="filterByCategory('marimba')">
+          <i class="fa-solid fa-bars-staggered"></i>
+          <span>Marimba</span>
+          <span class="inst-count">54</span>
+        </button>
+
+        <button class="inst-tab" data-cat="vibrafono" onclick="filterByCategory('vibrafono')">
+          <i class="fa-solid fa-wave-square"></i>
+          <span>Vibrafono</span>
+          <span class="inst-count">27</span>
+        </button>
+
+        <button class="inst-tab" data-cat="xilofono" onclick="filterByCategory('xilofono')">
+          <i class="fa-solid fa-music"></i>
+          <span>Xilofono</span>
+          <span class="inst-count">38</span>
+        </button>
+
+        <button class="inst-tab" data-cat="glockenspiel" onclick="filterByCategory('glockenspiel')">
+          <i class="fa-solid fa-bell"></i>
+          <span>Glockenspiel</span>
+          <span class="inst-count">12</span>
+        </button>
+
+        <button class="inst-tab" data-cat="setup" onclick="filterByCategory('setup')">
+          <i class="fa-solid fa-drum"></i>
+          <span>Setup / Multi</span>
+          <span class="inst-count">8</span>
+        </button>
+
+        <button class="inst-tab gold-special" data-cat="satomi-takashima" onclick="filterByCategory('satomi-takashima')">
+          <i class="fa-solid fa-star"></i>
+          <span>Satomi Takashima</span>
+          <span class="inst-count">5</span>
+        </button>
+
+        <button class="inst-tab" data-cat="marimbasignature" onclick="filterByCategory('marimbasignature')">
+          <i class="fa-solid fa-pen-nib"></i>
+          <span>Tutte le Signature</span>
+          <span class="inst-count">43</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Controls Bar: Real-time search, Hardness, Shaft & Sort -->
+  <section class="mg-controls-bar">
+    <div class="mg-controls-inner">
+      
+      <!-- Search Input with Clear -->
+      <div class="mg-search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="search-box" class="search-field-input" placeholder="Cerca bacchetta, codice o essenza (es. ST1, ULV27, Rattan)..." oninput="handleSearch()">
+        <button id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()" style="display: none;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Sound / Hardness Filters -->
+      <div class="mg-filter-group">
+        <span class="filter-group-label">Durezza:</span>
+        <button class="filter-pill active" data-hardness="all" onclick="filterByHardness('all')">Tutte</button>
+        <button class="filter-pill" data-hardness="soft" onclick="filterByHardness('soft')">Morbide</button>
+        <button class="filter-pill" data-hardness="medium" onclick="filterByHardness('medium')">Medie</button>
+        <button class="filter-pill" data-hardness="hard" onclick="filterByHardness('hard')">Dure</button>
+      </div>
+
+      <!-- Shaft Material Filters -->
+      <div class="mg-filter-group">
+        <span class="filter-group-label">Manico:</span>
+        <button class="filter-pill active" data-shaft="all" onclick="filterByShaft('all')">Tutti</button>
+        <button class="filter-pill" data-shaft="rattan" onclick="filterByShaft('rattan')">Rattan</button>
+        <button class="filter-pill" data-shaft="legno" onclick="filterByShaft('legno')">Legno</button>
+      </div>
+
+      <!-- Sort Dropdown -->
+      <div class="mg-sort-wrapper">
+        <label for="sort-select" class="filter-group-label">Ordina:</label>
+        <select id="sort-select" class="sort-select-input" onchange="handleSortChange()">
+          <option value="default">In Evidenza</option>
+          <option value="price-asc">Prezzo: Min ➔ Max</option>
+          <option value="price-desc">Prezzo: Max ➔ Min</option>
+          <option value="name-asc">Nome: A ➔ Z</option>
+        </select>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       MAIN CATALOG GRID & SIDEBAR
+       ========================================================================= -->
+  <main class="mg-main-grid">
     
-    <!-- Left Column: Products -->
-    <main class="mg-products-column">
+    <!-- Left Column: Products Grid -->
+    <div class="mg-products-column">
+      
       <div class="mg-toolbar">
         <div>
           <h2 class="mg-toolbar-title" id="active-category-title">TUTTI I MODELLI</h2>
-          <span id="products-count-badge" style="font-size: 0.85rem; color: var(--mg-text-muted);">127 modelli disponibili</span>
+          <span id="products-count-badge" class="mg-count-label">127 modelli disponibili</span>
         </div>
 
-        <div class="mg-search-box">
-          <i class="fa-solid fa-magnifying-glass mg-search-icon"></i>
-          <input type="text" id="search-box" class="mg-search-input" placeholder="Cerca modello o codice (es. ULV27, M101)..." oninput="handleSearch()">
+        <div class="mg-active-filters" id="active-filter-chips">
+          <!-- Dynamically populated if subfilters active -->
         </div>
       </div>
 
       <!-- Products Grid -->
       <div class="mg-grid" id="products-grid">
-        <!-- Rendered instantly via JS -->
+        <!-- Rendered instantly via JS with zero delays -->
       </div>
-    </main>
 
-    <!-- Right Column: Sidebar Navigation (Exact MG Mallets Structure) -->
+    </div>
+
+    <!-- Right Column: Hierarchical Category Sidebar (MG Mallets Style) -->
     <aside class="mg-sidebar-box">
-      <h3 class="mg-sidebar-heading" id="txt-categories-heading">CATEGORIE & SERIE</h3>
+      <div class="mg-sidebar-header">
+        <h3 class="mg-sidebar-heading" id="txt-categories-heading">CATEGORIE & SERIE</h3>
+      </div>
+      
       <div id="categories-tree-container">
         <!-- Rendered dynamically -->
       </div>
+
+      <!-- Artist Endorser Promo Box in Sidebar -->
+      <div class="mg-sidebar-artist-promo">
+        <div class="promo-badge">ARTIST SPOTLIGHT</div>
+        <img src="/uploads/ST_main.jpg" alt="Satomi Takashima" class="promo-artist-img" onerror="this.onerror=null; this.src='/uploads/Satomi5.jpg';">
+        <h4 class="promo-artist-name">Satomi Takashima</h4>
+        <p class="promo-artist-text">Prima marimbista donna endorser APinstrument al mondo. Scopri le 5 mazzuole da concerto con filato Alpaca Blue.</p>
+        <button class="promo-artist-btn" onclick="filterByCategory('satomi-takashima')">Visualizza Serie ST</button>
+      </div>
     </aside>
 
-  </div>
+  </main>
 
-  <!-- Product Details Modal -->
+  <!-- =========================================================================
+       PRODUCT DETAILS MODAL ("VISTA RAPIDA")
+       ========================================================================= -->
   <div class="mg-modal-overlay" id="product-modal" onclick="closeModalOnBg(event)">
     <div class="mg-modal-body">
-      <button class="mg-modal-close-btn" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></button>
+      <button class="mg-modal-close-btn" onclick="closeProductModal()" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
       
       <div class="mg-modal-img-col">
-        <img id="modal-img" src="" alt="Product">
-        <div id="modal-gallery-thumbs" style="display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap; justify-content: center;"></div>
+        <div class="mg-modal-img-container">
+          <img id="modal-img" src="" alt="Dettaglio Bacchetta" class="mg-modal-main-img">
+        </div>
+        <div id="modal-gallery-thumbs" class="mg-modal-gallery"></div>
       </div>
 
       <div class="mg-modal-info-col">
-        <span class="mg-card-series" id="modal-series">SERIE</span>
-        <h2 id="modal-title" style="font-family: var(--mg-font-title); font-size: 1.8rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 0.5rem;">TITOLO</h2>
-        <span id="modal-sku" class="mg-sku-badge" style="position: static; width: fit-content; margin-bottom: 1rem;">SKU</span>
-        <div class="mg-card-price" id="modal-price" style="font-size: 1.8rem; margin-bottom: 1.2rem; color: var(--mg-wood-warm);">€ 0.00</div>
+        <div class="modal-series-badge" id="modal-series">SERIE</div>
+        <h2 id="modal-title" class="modal-product-title">TITOLO MODELLO</h2>
         
-        <div id="modal-desc" style="color: var(--mg-text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;"></div>
+        <div class="modal-meta-row">
+          <span id="modal-sku" class="modal-sku-tag">SKU: N/A</span>
+          <span id="modal-hardness-tag" class="modal-hardness-tag">Media</span>
+        </div>
 
-        <h4 style="font-family: var(--mg-font-title); font-size: 1rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 0.6rem;">Caratteristiche Costruttive</h4>
-        <div class="mg-card-specs" id="modal-specs" style="margin-bottom: 2rem;"></div>
+        <div class="modal-price-row">
+          <div class="modal-price-amount" id="modal-price">€ 0.00</div>
+          <span class="modal-price-unit">/ paio (2 bacchette)</span>
+        </div>
+        
+        <div id="modal-desc" class="modal-description-box"></div>
 
-        <div style="display: flex; gap: 10px; margin-top: auto;">
-          <input type="number" id="modal-qty" value="1" min="1" max="50" style="width: 60px; padding: 10px; border: 1px solid var(--mg-card-border); border-radius: 4px; text-align: center; font-size: 1rem;">
-          <button class="mg-card-add-btn" style="flex: 1; padding: 12px; font-size: 0.95rem; background: var(--mg-dark-bar);" onclick="addModalToCart()">
+        <!-- Dynamic Specs Table -->
+        <h4 class="modal-specs-title">Specifiche Costruttive & Materiali</h4>
+        <div class="modal-specs-grid" id="modal-specs"></div>
+
+        <!-- Dedicated Video Button in Modal if product has demo -->
+        <div id="modal-video-box" style="display: none; margin-top: 1rem;">
+          <button class="modal-video-btn" id="modal-video-btn" onclick="openProductVideo()">
+            <i class="fa-solid fa-circle-play"></i> Guarda la Video Dimostrazione
+          </button>
+        </div>
+
+        <!-- Add to Cart in Modal -->
+        <div class="modal-purchase-row">
+          <div class="modal-qty-control">
+            <button onclick="changeModalQty(-1)">-</button>
+            <input type="number" id="modal-qty" value="1" min="1" max="50" readonly>
+            <button onclick="changeModalQty(1)">+</button>
+          </div>
+          <button class="modal-add-btn" onclick="addModalToCart()">
             <i class="fa-solid fa-cart-plus"></i> Aggiungi al Carrello
           </button>
         </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Craftsmanship Modal -->
+  <!-- =========================================================================
+       CINEMATIC VIDEO PLAYER MODAL
+       ========================================================================= -->
+  <div class="mg-modal-overlay" id="video-modal" onclick="closeVideoModalOnBg(event)">
+    <div class="video-modal-dialog">
+      <div class="video-modal-header">
+        <h3 id="video-modal-title"><i class="fa-brands fa-youtube" style="color: #ff0000; margin-right: 8px;"></i> AP Instrument Video Demo</h3>
+        <button class="video-modal-close" onclick="closeVideoModal()" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="video-responsive-wrap">
+        <iframe id="video-modal-iframe" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       BOTTEGA ARTIGIANALE CRAFTSMANSHIP MODAL
+       ========================================================================= -->
   <div class="mg-modal-overlay" id="craft-modal" onclick="closeModalOnBg(event)">
-    <div class="mg-modal-body" style="grid-template-columns: 1fr; padding: 2.5rem; max-width: 750px;">
-      <button class="mg-modal-close-btn" onclick="closeCraftModal()"><i class="fa-solid fa-xmark"></i></button>
-      <h2 style="font-family: var(--mg-font-title); font-size: 2.2rem; text-transform: uppercase; color: var(--mg-wood-warm); margin-bottom: 1rem;">
-        <i class="fa-solid fa-hammer"></i> La Bottega Artigianale AP Instrument
-      </h2>
-      <p style="color: var(--mg-text-muted); line-height: 1.7; margin-bottom: 1rem;">
-        Ogni bacchetta <strong>AP Instrument</strong> è il risultato di anni di studio acustico e manualità sartoriale Made in Italy. Selezioniamo con cura solo le migliori essenze (Acero, Ulivo calabrese, Palissandro e Rattan naturale), testando attentamente ciascuna asta per garantire uniformità di peso e flessibilità.
-      </p>
-      <p style="color: var(--mg-text-muted); line-height: 1.7; margin-bottom: 1.5rem;">
-        La filatura delle teste viene eseguita a mano con pura lana e anime calibrate, per una proiezione timbrica ricca di armonici che esalta la voce di marimba, vibrafono, xilofono e glockenspiel.
-      </p>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
-        <div style="background: #faf8f5; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--mg-card-border);">
-          <i class="fa-solid fa-tree" style="font-size: 1.8rem; color: var(--mg-wood-warm); margin-bottom: 0.5rem;"></i>
-          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: var(--mg-text-main);">Legni Nobili</h4>
+    <div class="mg-modal-body craft-modal-dialog">
+      <button class="mg-modal-close-btn" onclick="closeCraftModal()" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div class="craft-modal-content">
+        <span class="craft-eyebrow">PASSIONE & LIUTERIA DELLE PERCUSSIONI</span>
+        <h2 class="craft-modal-title">
+          <i class="fa-solid fa-hammer" style="color: var(--mg-accent-gold); margin-right: 10px;"></i> 
+          La Bottega Artigianale AP Instrument
+        </h2>
+        
+        <p class="craft-lead">
+          Nata dalla passione per il suono puro e la precisione acustica, <strong>AP Instrument</strong> unisce la secolare tradizione liuteristica italiana alla costante ricerca di nuovi timbri per marimba, vibrafono, xilofono e glockenspiel.
+        </p>
+
+        <div class="craft-grid-3">
+          <div class="craft-feature-box">
+            <i class="fa-solid fa-tree feature-icon"></i>
+            <h4>Essenze Selezionate</h4>
+            <p>Solo i legni più nobili e risonanti: Palissandro dell'Honduras e Santos, Ebano del Gabon, Ulivo calabrese e Azobé africano ad altissima densità.</p>
+          </div>
+
+          <div class="craft-feature-box">
+            <i class="fa-solid fa-scale-balanced feature-icon"></i>
+            <h4>Rattan Calibrato</h4>
+            <p>Ogni singola asta di Rattan naturale viene testata per flessibilità, diametro (8.8/9.2 mm) e rimbalzo, assicurando coppie identiche.</p>
+          </div>
+
+          <div class="craft-feature-box">
+            <i class="fa-solid fa-certificate feature-icon"></i>
+            <h4>Filatura a Mano</h4>
+            <p>Avvolgimento manuale con tensionamento progressivo in pura lana vergine o Alpaca nobile su nuclei calibrati indeformabili.</p>
+          </div>
         </div>
-        <div style="background: #faf8f5; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--mg-wood-warm); border: 1px solid var(--mg-card-border);">
-          <i class="fa-solid fa-hand-holding-heart" style="font-size: 1.8rem; color: var(--mg-wood-warm); margin-bottom: 0.5rem;"></i>
-          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: var(--mg-text-main);">Fatto a Mano</h4>
-        </div>
-        <div style="background: #faf8f5; padding: 1.2rem; border-radius: 6px; border: 1px solid var(--mg-card-border);">
-          <i class="fa-solid fa-sliders" style="font-size: 1.8rem; color: var(--mg-wood-warm); margin-bottom: 0.5rem;"></i>
-          <h4 style="font-family: var(--mg-font-title); font-size: 1.1rem; color: var(--mg-text-main);">Pesi Calibrati</h4>
+
+        <div class="craft-quote-box">
+          <p>«Ogni bacchetta che lascia il nostro laboratorio non è un semplice accessorio, ma il prolungamento delle mani del musicista e la voce dello strumento.»</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Cart Slide-out Drawer -->
+  <!-- =========================================================================
+       SLIDE-OUT CART DRAWER & CHECKOUT
+       ========================================================================= -->
   <div class="mg-drawer-backdrop" id="cart-overlay" onclick="toggleCart()"></div>
   <div class="mg-drawer-panel" id="cart-drawer">
+    
     <div class="mg-drawer-top">
-      <h3 style="font-family: var(--mg-font-title); font-size: 1.35rem; text-transform: uppercase; color: var(--mg-text-main);">Il Tuo Carrello</h3>
-      <button onclick="toggleCart()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--mg-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+      <div class="drawer-title-group">
+        <i class="fa-solid fa-bag-shopping gold-icon"></i>
+        <h3>Il Tuo Carrello</h3>
+      </div>
+      <button onclick="toggleCart()" class="drawer-close-btn" aria-label="Chiudi"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
+    <!-- Items List -->
     <div class="mg-drawer-scroll" id="cart-items">
-      <!-- Items -->
+      <!-- Injected dynamically -->
     </div>
 
+    <!-- Footer Checkout Info -->
     <div class="mg-drawer-bottom" id="cart-footer" style="display: none;">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: var(--mg-text-muted);">
-        <span>Subtotale:</span>
-        <strong id="cart-subtotal" style="color: var(--mg-text-main);">€ 0.00</strong>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: var(--mg-text-muted);">
-        <span>Spedizione stimata:</span>
-        <strong id="cart-shipping" style="color: var(--mg-text-main);">€ 9.00</strong>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 1.2rem; font-size: 1.35rem; color: var(--mg-wood-warm); border-top: 1px solid var(--mg-card-border); padding-top: 8px;">
-        <span>Totale:</span>
-        <strong id="cart-total">€ 0.00</strong>
-      </div>
-
-      <button class="mg-card-add-btn" style="width: 100%; padding: 12px; font-size: 1rem; background: var(--mg-dark-bar);" onclick="showCheckoutView()">
-        <i class="fa-solid fa-lock"></i> Procedi all'Ordine
-      </button>
-    </div>
-
-    <!-- Checkout View -->
-    <div id="checkout-pane" style="display: none; padding: 1.5rem; overflow-y: auto; height: 100%;">
-      <button onclick="hideCheckoutView()" style="background: none; border: none; color: var(--mg-wood-warm); cursor: pointer; font-weight: 600; margin-bottom: 1rem;"><i class="fa-solid fa-arrow-left"></i> Torna al Carrello</button>
       
-      <h3 style="font-family: var(--mg-font-title); font-size: 1.35rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 1rem;">Dati di Spedizione</h3>
-      <form id="checkout-form">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-          <input type="text" id="cust-first" placeholder="Nome *" required class="mg-search-input">
-          <input type="text" id="cust-last" placeholder="Cognome *" required class="mg-search-input">
-        </div>
-        <input type="email" id="cust-email" placeholder="Email *" required class="mg-search-input" style="margin-bottom: 8px;">
-        <input type="tel" id="cust-phone" placeholder="Telefono *" required class="mg-search-input" style="margin-bottom: 8px;">
-        <input type="text" id="cust-addr" placeholder="Indirizzo e N. Civico *" required class="mg-search-input" style="margin-bottom: 8px;">
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px;">
-          <input type="text" id="cust-city" placeholder="Città *" required class="mg-search-input">
-          <input type="text" id="cust-zip" placeholder="CAP *" required class="mg-search-input">
-        </div>
-        <select id="cust-country" class="mg-search-input" style="margin-bottom: 1rem;" onchange="updateShippingCountry()">
-          <option value="IT">Italia (Corriere Espresso € 9.00)</option>
-          <option value="FR">Francia (Corriere Espresso € 16.00)</option>
-          <option value="DE">Germania (Corriere Espresso € 16.00)</option>
-          <option value="ES">Spagna (Corriere Espresso € 16.00)</option>
-          <option value="OTHER">Altri Paesi UE / Extra UE (€ 25.00)</option>
-        </select>
+      <div class="cart-summary-line">
+        <span>Subtotale Prodotti:</span>
+        <strong id="cart-subtotal">€ 0.00</strong>
+      </div>
+      
+      <div class="cart-summary-line">
+        <span>Spedizione con Corriere Espresso:</span>
+        <span id="cart-shipping">€ 9.00</span>
+      </div>
 
-        <div style="border-top: 1px solid var(--mg-card-border); padding-top: 8px; margin-bottom: 1.2rem;">
-          <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--mg-text-muted); display: block; margin-bottom: 4px;">Dati Fiscali Fatturazione Italia (Opzionale)</span>
-          <input type="text" id="cust-cf" placeholder="Codice Fiscale" class="mg-search-input" style="margin-bottom: 6px;">
-          <input type="text" id="cust-piva" placeholder="Partita IVA" class="mg-search-input">
-        </div>
+      <div class="cart-total-box">
+        <span>TOTALE ORDINE:</span>
+        <strong id="cart-total" class="cart-grand-total">€ 0.00</strong>
+      </div>
 
-        <h4 style="font-family: var(--mg-font-title); font-size: 1.05rem; text-transform: uppercase; color: var(--mg-text-main); margin-bottom: 0.8rem;">Pagamento</h4>
-        
-        <button type="button" class="mg-card-add-btn" style="width: 100%; margin-bottom: 8px; background: #0070ba; color: #fff; padding: 12px;" onclick="processPayment('paypal')">
-          <i class="fa-brands fa-paypal"></i> Paga con PayPal o Carte
+      <!-- Checkout Actions -->
+      <div class="cart-checkout-actions">
+        <button class="btn-checkout-paypal" onclick="initiateCheckout('paypal')">
+          <i class="fa-brands fa-paypal"></i> Paga con PayPal
         </button>
-        <button type="button" class="mg-lang-btn" style="width: 100%; padding: 10px; font-size: 0.85rem; color: #333; border-color: #ccc;" onclick="processPayment('bacs')">
-          <i class="fa-solid fa-building-columns"></i> Bonifico Bancario
+        <button class="btn-checkout-card" onclick="initiateCheckout('stripe')">
+          <i class="fa-solid fa-credit-card"></i> Paga con Carta di Credito
         </button>
-      </form>
+      </div>
+
+      <p class="cart-security-note">
+        <i class="fa-solid fa-lock"></i> Connessione SSL cifrata a 256-bit • Pagamento sicuro certificato
+      </p>
+
     </div>
+
   </div>
 
-  <!-- Footer (Dark Luxury Style) -->
-  <footer class="mg-footer-container">
-    <div class="mg-footer-wrap">
-      <div>
-        <img src="/uploads/logo-apinstrument.png" alt="AP Instrument" style="height: 46px; margin-bottom: 1rem;" onerror="this.onerror=null; this.src='/uploads/logo-apinstrument-home.png';">
-        <p style="color: #a8a096; font-size: 0.88rem; line-height: 1.6; max-width: 360px;">
-          Costruzione artigianale di bacchette da concerto per marimba, vibrafono, xilofono e glockenspiel. Made in Italy.
+  <!-- =========================================================================
+       TOAST NOTIFICATIONS (Animated Popup on Add to Cart)
+       ========================================================================= -->
+  <div class="mg-toast-container" id="toast-container"></div>
+
+  <!-- =========================================================================
+       FOOTER (MG Mallets Clean Aesthetic)
+       ========================================================================= -->
+  <footer class="mg-footer">
+    <div class="mg-footer-inner">
+      
+      <div class="mg-footer-col">
+        <img src="/uploads/logo-apinstrument.png" alt="AP Instrument" class="mg-footer-logo" onerror="this.onerror=null; this.src='/uploads/logo-apinstrument-home.png';">
+        <p class="mg-footer-about">
+          Bottega artigianale di bacchette per percussioni a tastiera. Qualità superiore, timbro equilibrato e massima espressività per marimba, vibrafono, xilofono e glockenspiel.
+        </p>
+        <div class="footer-socials">
+          <a href="https://www.youtube.com/@apinstrument" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://www.facebook.com/apinstrument" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/apinstrument" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+
+      <div class="mg-footer-col">
+        <h4>Percussioni</h4>
+        <ul class="mg-footer-links">
+          <li><a href="#catalog" onclick="filterByCategory('marimba')">Bacchette Marimba</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('vibrafono')">Bacchette Vibrafono</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('xilofono')">Bacchette Xilofono</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('glockenspiel')">Bacchette Glockenspiel</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('setup')">Multipercussione & Setup</a></li>
+        </ul>
+      </div>
+
+      <div class="mg-footer-col">
+        <h4>Signature Series</h4>
+        <ul class="mg-footer-links">
+          <li><a href="#satomi-hero" onclick="switchSTModel('ST1'); scrollToHero();">Satomi Takashima (ST1-ST5)</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('simone-rubino')">Simone Rubino</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('tatsushi-omori')">Tatsushi Omori</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('carmelogiulianogullotto')">Carmelo Giuliano Gullotto</a></li>
+          <li><a href="#catalog" onclick="filterByCategory('gordon-stout')">Gordon Stout</a></li>
+        </ul>
+      </div>
+
+      <div class="mg-footer-col">
+        <h4>Assistenza & Contatti</h4>
+        <p style="color: #999; font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.8rem;">
+          Hai bisogno di consigli sulla scelta delle bacchette o di un ordine personalizzato per conservatori e orchestre?
+        </p>
+        <p style="color: var(--mg-accent-gold); font-size: 0.95rem; font-weight: 600;">
+          <i class="fa-solid fa-envelope" style="margin-right: 6px;"></i> info@apinstrument.com
+        </p>
+        <p style="color: #bbb; font-size: 0.85rem; margin-top: 0.5rem;">
+          <i class="fa-solid fa-location-dot" style="margin-right: 6px;"></i> Laboratorio Artigianale - Italia
         </p>
       </div>
 
-      <div>
-        <h4 class="mg-footer-h4">Prodotti</h4>
-        <ul class="mg-footer-list">
-          <li><a href="javascript:void(0)" onclick="filterByCategory('marimba')">Marimba</a></li>
-          <li><a href="javascript:void(0)" onclick="filterByCategory('vibrafono')">Vibrafono</a></li>
-          <li><a href="javascript:void(0)" onclick="filterByCategory('xilofono')">Xilofono</a></li>
-          <li><a href="javascript:void(0)" onclick="filterByCategory('glockenspiel')">Glockenspiel</a></li>
-          <li><a href="javascript:void(0)" onclick="filterByCategory('setup')">Setup & Multi</a></li>
-        </ul>
-      </div>
+    </div>
 
-      <div>
-        <h4 class="mg-footer-h4">Informazioni</h4>
-        <ul class="mg-footer-list">
-          <li><a href="javascript:void(0)" onclick="openCraftModal()">La Nostra Bottega</a></li>
-          <li><a href="javascript:void(0)" onclick="alert('Spedizioni corriere espresso 24/48h Italia, 3-5gg Europa.')">Spedizioni & Consegna</a></li>
-          <li><a href="javascript:void(0)" onclick="alert('Pagamenti crittografati SSL tramite gateway PayPal e Carte.')">Pagamenti Sicuri</a></li>
-          <li><a href="mailto:info@apinstrument.com">Contattaci</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h4 class="mg-footer-h4">Contatti</h4>
-        <p style="color: #a8a096; font-size: 0.88rem; margin-bottom: 6px;"><i class="fa-solid fa-envelope" style="color: var(--mg-accent-gold); margin-right: 6px;"></i> info@apinstrument.com</p>
-        <p style="color: #a8a096; font-size: 0.88rem; margin-bottom: 1rem;"><i class="fa-solid fa-location-dot" style="color: var(--mg-accent-gold); margin-right: 6px;"></i> Italia • Fatto a Mano</p>
-        <div style="display: flex; gap: 12px;">
-          <a href="#" style="color: var(--mg-accent-gold); font-size: 1.2rem;"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" style="color: var(--mg-accent-gold); font-size: 1.2rem;"><i class="fa-brands fa-facebook"></i></a>
-          <a href="#" style="color: var(--mg-accent-gold); font-size: 1.2rem;"><i class="fa-brands fa-youtube"></i></a>
+    <div class="mg-footer-bottom">
+      <div class="mg-footer-bottom-inner">
+        <div>© 2026 AP Instrument. Tutti i diritti riservati. P.IVA IT0123456789.</div>
+        <div style="display: flex; gap: 16px;">
+          <span>100% Handcrafted in Italy</span>
+          <span>•</span>
+          <span>Privacy & Cookie Policy</span>
         </div>
       </div>
     </div>
-
-    <div class="mg-footer-copy">
-      <p>© 2026 AP Instrument. All rights reserved. Handcrafted Mallets Made in Italy.</p>
-    </div>
   </footer>
 
-  <!-- 1. Instant Catalog Data Bundle (Zero-latency rendering) -->
+  <!-- Bundled Fast Catalog Data Cache -->
   <script src="/js/catalog-data.js"></script>
-
-  <!-- 2. Application Logic -->
+  <!-- Main Application Logic -->
   <script src="/js/app.js"></script>
+
 </body>
 </html>

@@ -9989,7 +9989,7 @@
         "en": "ST SERIES MARIMBA - ST1 SOFT"
       },
       "slug": "serie-st-marimba-st01-soft",
-      "sku": "",
+      "sku": "ST1",
       "price": 31.5,
       "regularPrice": 31.5,
       "salePrice": null,
@@ -10065,7 +10065,7 @@
         "en": "SERIE ST MARIMBA - ST2 MEDIUM SOFT"
       },
       "slug": "serie-st-marimba-st02-medium-soft",
-      "sku": "",
+      "sku": "ST2",
       "price": 32.5,
       "regularPrice": 32.5,
       "salePrice": null,
@@ -10217,7 +10217,7 @@
         "en": "SERIE ST MARIMBA - ST4 MEDIUM HARD"
       },
       "slug": "serie-st-marimba-st04-medium-hard",
-      "sku": "",
+      "sku": "ST4",
       "price": 32.5,
       "regularPrice": 32.5,
       "salePrice": null,
@@ -10293,7 +10293,7 @@
         "en": "ST SERIES MARIMBA - ST05 HARD"
       },
       "slug": "serie-st-marimba-st05-hard",
-      "sku": "",
+      "sku": "ST5",
       "price": 32.5,
       "regularPrice": 32.5,
       "salePrice": null,
